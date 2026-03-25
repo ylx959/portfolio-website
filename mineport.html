@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YLX studio</title>
+    <link rel="stylesheet" href="mineport.css?v=59">
+</head>
+<body>
+    <header class="hero" id="home">
+        <nav class="top-nav">
+            <a class="nav-link" href="#home">HOME</a>
+            <a class="nav-link" href="#projects">PROJECT</a>
+            <a class="nav-link" href="#about">ABOUT</a>
+            <a class="nav-link" href="#contact">CONTACT</a>
+        </nav>
+
+        <div class="overlay"></div>
+
+        <div class="content">
+            <h1 class="title">YLX studio</h1>
+            <p class="subtitle" id="subtitle" aria-live="polite">welcome to my home page.</p>
+
+            <div class="description-wrapper">
+                <div class="description-track">
+                    <span class="description-copy">YLX studio is a collective exploring aesthetics, projects, and design through a multidisciplinary approach.</span>
+                    <span class="description-copy" aria-hidden="true">YLX studio is a collective exploring aesthetics, projects, and design through a multidisciplinary approach.</span>
+                </div>
+            </div>
+
+            <form class="form" id="enterForm">
+                <input class="input" type="text" placeholder="Name" id="name">
+                <button class="btn" type="submit" id="enterButton" disabled>Enter</button>
+            </form>
+        </div>
+    </header>
+
+    <main class="project-showcase" id="projects">
+        <div class="showcase-shell">
+            <nav class="project-top-nav">
+                <a class="project-top-link" href="#home">HOME</a>
+                <a class="project-top-link is-active" href="#projects">PROJECT</a>
+                <a class="project-top-link" href="#about">ABOUT</a>
+                <a class="project-top-link" href="#contact">CONTACT</a>
+            </nav>
+
+            <section class="project-intro">
+                <div class="project-categories">
+                    <button class="category-link is-active" type="button" data-filter="all">All</button>
+                    <button class="category-link" type="button" data-filter="architecture">Architecture</button>
+                    <button class="category-link" type="button" data-filter="art">Art</button>
+                    <button class="category-link" type="button" data-filter="design">Design</button>
+                </div>
+
+                <div class="project-filters">
+                    <button class="filter-chip" type="button">
+                        <span>Location</span>
+                        <span class="filter-plus">+</span>
+                    </button>
+                    <button class="filter-chip" type="button">
+                        <span>Status</span>
+                        <span class="filter-plus">+</span>
+                    </button>
+                    <button class="filter-chip" type="button">
+                        <span>Typology</span>
+                        <span class="filter-plus">+</span>
+                    </button>
+                    <button class="filter-chip filter-icon" type="button" id="viewToggle" aria-label="Toggle list view" aria-pressed="false">
+                        <span class="filter-icon-window" aria-hidden="true">
+                            <span class="filter-icon-track">
+                                <span class="filter-grid-icon"></span>
+                                <span class="filter-list-icon"></span>
+                            </span>
+                        </span>
+                    </button>
+                </div>
+            </section>
+
+            <section class="project-grid">
+                <article class="project-card" data-category="architecture" data-year="2014-2026">
+                    <div class="project-image image-grid-01"></div>
+                    <div class="project-caption">
+                        <h2>Stone Horizon House</h2>
+                        <p>Los Angeles, USA</p>
+                    </div>
+                </article>
+
+                <article class="project-card" data-category="art" data-year="2018-2018">
+                    <div class="project-image image-grid-02"></div>
+                    <div class="project-caption">
+                        <h2>Stone Horizon House</h2>
+                        <p>Los Angeles, USA</p>
+                    </div>
+                </article>
+
+                <article class="project-card" data-category="design" data-year="2018-2025">
+                    <div class="project-image image-grid-03"></div>
+                    <div class="project-caption">
+                        <h2>Fenix</h2>
+                        <p>Rotterdam, Netherlands</p>
+                    </div>
+                </article>
+
+                <article class="project-card" data-category="architecture" data-year="2018-2026">
+                    <div class="project-image image-grid-04"></div>
+                    <div class="project-caption">
+                        <h2>Stone Horizon House</h2>
+                        <p>Los Angeles, USA</p>
+                    </div>
+                </article>
+
+                <article class="project-card" data-category="design" data-year="2018-2026">
+                    <div class="project-image image-grid-05"></div>
+                    <div class="project-caption">
+                        <h2>Stone Horizon House</h2>
+                        <p>Los Angeles, USA</p>
+                    </div>
+                </article>
+
+                <article class="project-card" data-category="art" data-year="2017-2020">
+                    <div class="project-image image-grid-06"></div>
+                    <div class="project-caption">
+                        <h2>Stone Horizon House</h2>
+                        <p>Los Angeles, USA</p>
+                    </div>
+                </article>
+
+                <article class="project-card" data-category="architecture" data-year="2016-2024">
+                    <div class="project-image image-grid-07"></div>
+                    <div class="project-caption">
+                        <h2>Stone Horizon House</h2>
+                        <p>Los Angeles, USA</p>
+                    </div>
+                </article>
+
+                <article class="project-card" data-category="art" data-year="2019-2023">
+                    <div class="project-image image-grid-08"></div>
+                    <div class="project-caption">
+                        <h2>Stone Horizon House</h2>
+                        <p>Los Angeles, USA</p>
+                    </div>
+                </article>
+
+                <article class="project-card" data-category="design" data-year="2015-2021">
+                    <div class="project-image image-grid-09"></div>
+                    <div class="project-caption">
+                        <h2>Stone Horizon House</h2>
+                        <p>Los Angeles, USA</p>
+                    </div>
+                </article>
+
+                <article class="project-card" data-category="architecture" data-year="2020-2024">
+                    <div class="project-image image-grid-10"></div>
+                    <div class="project-caption">
+                        <h2>Stone Horizon House</h2>
+                        <p>Los Angeles, USA</p>
+                    </div>
+                </article>
+
+                <article class="project-card" data-category="design" data-year="2019-2026">
+                    <div class="project-image image-grid-11"></div>
+                    <div class="project-caption">
+                        <h2>Stone Horizon House</h2>
+                        <p>Los Angeles, USA</p>
+                    </div>
+                </article>
+
+                <article class="project-card" data-category="art" data-year="2018-2022">
+                    <div class="project-image image-grid-12"></div>
+                    <div class="project-caption">
+                        <h2>Stone Horizon House</h2>
+                        <p>Los Angeles, USA</p>
+                    </div>
+                </article>
+            </section>
+        </div>
+    </main>
+
+    <section class="anchor-placeholder" id="about"></section>
+    <section class="anchor-placeholder" id="contact"></section>
+
+    <script src="mineport.js?v=59"></script>
+</body>
+</html>
