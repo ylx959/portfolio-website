@@ -50,17 +50,19 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function smoothScrollTo(targetY, duration) {
         const startY = window.scrollY;
-        const distance = targetY - startY;
+        const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+        const destinationY = Math.max(0, Math.min(targetY, maxScroll));
+        const distance = destinationY - startY;
         const startTime = performance.now();
         
-        function easeOutQuint(progress) {
-            return 1 - Math.pow(1 - progress, 5);
+        function linear(progress) {
+            return progress;
         }
 
         function step(currentTime) {
             const elapsed = currentTime - startTime;
             const progress = Math.min(elapsed / duration, 1);
-            const easedProgress = easeOutQuint(progress);
+            const easedProgress = linear(progress);
 
             window.scrollTo(0, startY + distance * easedProgress);
 
@@ -161,7 +163,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
             event.preventDefault();
-            smoothScrollTo(targetSection.offsetTop, 1450);
+            smoothScrollTo(targetSection.offsetTop, 980);
         });
     });
 
