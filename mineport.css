@@ -271,9 +271,8 @@ input {
 }
 
 .project-intro {
-    margin-top: 120px;
-    margin-bottom: 34px;
-    padding-inline: var(--project-edge-inset);
+    width: calc(100% - (var(--project-edge-inset) * 2));
+    margin: 120px auto 34px;
 }
 
 .project-categories {
@@ -584,6 +583,9 @@ input {
 
 .project-grid.is-list-view {
     display: block;
+    width: calc(100% - (var(--project-edge-inset) * 2));
+    margin: 0 auto;
+    padding-inline: 0;
 }
 
 .project-grid.is-list-view .project-card {
@@ -941,20 +943,11 @@ input {
 
 .contact-section {
     padding: 28px var(--project-shell-padding) 72px;
-    background: #ffffff;
+    background: #e2e2e2;
 }
 
 .contact-shell {
     width: 100%;
-}
-
-.contact-nav {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-    justify-content: flex-end;
-    margin-bottom: 72px;
-    padding-inline: var(--project-edge-inset);
 }
 
 .contact-layout {
@@ -1301,12 +1294,6 @@ input {
         padding: 18px var(--project-shell-padding) 56px;
     }
 
-    .contact-nav {
-        justify-content: flex-start;
-        margin-bottom: 52px;
-        padding-inline: 0;
-    }
-
     .contact-layout,
     .contact-footer {
         width: 100%;
@@ -1332,6 +1319,11 @@ input {
     .project-grid {
         gap: 6px;
         grid-template-columns: 1fr;
+    }
+
+    .project-intro,
+    .project-grid.is-list-view {
+        width: 100%;
     }
 
     .project-grid.is-list-view .project-card {

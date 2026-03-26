@@ -48,30 +48,25 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    function smoothScrollTo(targetY, duration) {
-        const startY = window.scrollY;
+    function smoothScrollTo(targetY) {
         const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
         const destinationY = Math.max(0, Math.min(targetY, maxScroll));
-        const distance = destinationY - startY;
-        const startTime = performance.now();
-        
-        function linear(progress) {
-            return progress;
+
+        window.scrollTo({
+            top: destinationY,
+            behavior: "smooth"
+        });
+    }
+
+    function smoothScrollToSection(section) {
+        if (!section) {
+            return;
         }
 
-        function step(currentTime) {
-            const elapsed = currentTime - startTime;
-            const progress = Math.min(elapsed / duration, 1);
-            const easedProgress = linear(progress);
-
-            window.scrollTo(0, startY + distance * easedProgress);
-
-            if (progress < 1) {
-                window.requestAnimationFrame(step);
-            }
-        }
-
-        window.requestAnimationFrame(step);
+        section.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
     }
 
     function isAnyNavVisible() {
@@ -135,7 +130,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const projectsSection = document.getElementById("projects");
 
             if (projectsSection) {
-                smoothScrollTo(projectsSection.offsetTop, 1800);
+                smoothScrollToSection(projectsSection);
             }
         });
     }
@@ -163,7 +158,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
             event.preventDefault();
-            smoothScrollTo(targetSection.offsetTop, 980);
+            smoothScrollToSection(targetSection);
         });
     });
 
@@ -229,7 +224,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const currentSection = getCurrentSection();
 
             if (currentSection) {
-                smoothScrollTo(currentSection.offsetTop, 1250);
+                smoothScrollToSection(currentSection);
             }
         });
     }
