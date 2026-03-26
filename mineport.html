@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>YLX studio</title>
-    <link rel="stylesheet" href="mineport.css?v=59">
+    <link rel="stylesheet" href="mineport.css?v=89">
 </head>
 <body>
     <header class="hero" id="home">
@@ -28,8 +28,8 @@
                 </div>
             </div>
 
-            <form class="form" id="enterForm">
-                <input class="input" type="text" placeholder="Name" id="name">
+            <form class="form" id="enterForm" autocomplete="off">
+                <input class="input" type="text" placeholder="Name" id="name" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" autofocus>
                 <button class="btn" type="submit" id="enterButton" disabled>Enter</button>
             </form>
         </div>
@@ -80,24 +80,25 @@
                 <article class="project-card" data-category="architecture" data-year="2014-2026">
                     <div class="project-image image-grid-01"></div>
                     <div class="project-caption">
-                        <h2>Stone Horizon House</h2>
-                        <p>Los Angeles, USA</p>
+                        <h2>Double Interaction</h2>
+                        <p>2024,Spring</p>
                     </div>
                 </article>
 
                 <article class="project-card" data-category="art" data-year="2018-2018">
                     <div class="project-image image-grid-02"></div>
                     <div class="project-caption">
-                        <h2>Stone Horizon House</h2>
-                        <p>Los Angeles, USA</p>
+                        <h2>Euphoria</h2>
+                         <p>senior center</p>
+                        <p>2023,Fall</p>
                     </div>
                 </article>
 
                 <article class="project-card" data-category="design" data-year="2018-2025">
                     <div class="project-image image-grid-03"></div>
                     <div class="project-caption">
-                        <h2>Fenix</h2>
-                        <p>Rotterdam, Netherlands</p>
+                        <h2>Light,Stone,Hope</h2>
+                        <p>2024,Fall</p>
                     </div>
                 </article>
 
@@ -176,9 +177,137 @@
         </div>
     </main>
 
-    <section class="anchor-placeholder" id="about"></section>
-    <section class="anchor-placeholder" id="contact"></section>
+    <section class="about-section" id="about">
+        <div class="about-shell">
+            <nav class="about-nav">
+                <a class="project-top-link" href="#home">HOME</a>
+                <a class="project-top-link" href="#projects">PROJECT</a>
+                <a class="project-top-link is-active" href="#about">ABOUT</a>
+                <a class="project-top-link" href="#contact">CONTACT</a>
+            </nav>
 
-    <script src="mineport.js?v=59"></script>
+            <div class="about-layout">
+                <div class="about-left">
+                    <div class="about-heading">
+                        <p class="about-kicker">About YLX Studio</p>
+                        <h2 class="about-title">Studio information and designer notes are arranged as a quiet editorial field.</h2>
+                    </div>
+
+                    <div class="about-copy">
+                        <p>YLX Studio works between architecture, visual narrative, and atmospheric composition. The practice focuses on restraint, spatial clarity, and the emotional weight carried by material, light, and proportion.</p>
+                        <p>The studio develops visual worlds that feel calm, deliberate, and immersive. Every frame is treated like a spatial composition, where silence, interval, and rhythm are as important as the object itself.</p>
+                    </div>
+
+                    <div class="about-info-grid">
+                        <div class="about-info-block">
+                            <button class="about-info-toggle" type="button" aria-expanded="false">
+                                <span class="about-info-label">Studio Information</span>
+                            </button>
+                            <div class="about-info-panel">
+                                <p class="about-info-text">YLX Studio is an independent design practice based in Taipei, developing work across spatial design, image direction, and concept-driven visual systems.</p>
+                                <p class="about-info-text">The studio is interested in architectural storytelling, editorial calm, and immersive visual pacing.</p>
+                            </div>
+                        </div>
+
+                        <div class="about-info-block">
+                            <button class="about-info-toggle" type="button" aria-expanded="false">
+                                <span class="about-info-label">Designer</span>
+                            </button>
+                            <div class="about-info-panel">
+                                <p class="about-info-text">Yang Linxuan</p>
+                                <p class="about-info-text">Spatial designer / visual storyteller working with atmosphere, layout, and narrative-sensitive composition.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="about-right">
+                    <div class="about-frame about-frame-link" id="aboutInstagramCard" role="button" tabindex="0" aria-label="Open Instagram prompt">
+                        <img class="about-image" src="about1.jpg" alt="YLX Studio visual reference">
+                        <div class="about-instagram-layer" aria-hidden="true">
+                            <div class="about-instagram-card">
+                                <div class="about-instagram-icon">
+                                    <span class="about-instagram-glyph"></span>
+                                </div>
+                                <p class="about-instagram-text" id="aboutInstagramText">Do you want to connect to YLX studio on Instagram?</p>
+                                <div class="about-instagram-actions">
+                                    <a class="about-instagram-link" href="https://www.instagram.com/ylx_studio?utm_source=ig_web_button_share_sheet&amp;igsh=ZDNlZDc0MzIxNw==" target="_blank" rel="noreferrer">Open</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="contact-section" id="contact">
+        <div class="contact-shell">
+            <nav class="contact-nav">
+                <a class="project-top-link" href="#home">HOME</a>
+                <a class="project-top-link" href="#projects">PROJECT</a>
+                <a class="project-top-link" href="#about">ABOUT</a>
+                <a class="project-top-link is-active" href="#contact">CONTACT</a>
+            </nav>
+
+            <div class="contact-layout">
+                <div class="contact-brand">
+                    <img class="contact-mark" src="contact-logo.jpg" alt="YLX logo">
+                </div>
+
+                <div class="contact-main">
+                    <div class="contact-group">
+                        <p class="contact-label">Works</p>
+                        <div class="contact-chip-row">
+                            <a class="contact-chip" href="#home">Home</a>
+                            <a class="contact-chip" href="#projects">Projects</a>
+                        </div>
+                    </div>
+
+                    <div class="contact-group">
+                        <p class="contact-label">Office</p>
+                        <div class="contact-chip-row">
+                            <a class="contact-chip" href="#about">About Us</a>
+                            <button class="contact-chip" type="button">News</button>
+                            <button class="contact-chip" type="button">Our Team</button>
+                            <button class="contact-chip" type="button">Careers</button>
+                            <a class="contact-chip" href="#contact">Contact Us</a>
+                        </div>
+                    </div>
+
+                    <div class="contact-group contact-signup-block">
+                        <p class="contact-label">YLX News</p>
+                        <form class="contact-signup" autocomplete="off">
+                            <input class="contact-input" type="email" placeholder="email" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+                            <button class="contact-submit" type="submit">Sign Up</button>
+                        </form>
+                        <p class="contact-note">By signing up, you consent to receive occasional studio updates from YLX and agree to our privacy notice.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="contact-footer">
+                <div class="contact-footer-left">
+                    <p>Privacy Policy</p>
+                    <p>Terms of Service</p>
+                    <p>&copy; YLX 2026</p>
+                </div>
+
+                <div class="contact-footer-right">
+                    <div class="contact-socials">
+                        <a href="https://www.instagram.com/ylx_studio?utm_source=ig_web_button_share_sheet&amp;igsh=ZDNlZDc0MzIxNw==" target="_blank" rel="noreferrer">Instagram</a>
+                        <a href="#contact">Facebook</a>
+                        <a href="#contact">LinkedIn</a>
+                        <a href="#contact">X</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <button class="section-return" id="sectionReturn" type="button" aria-label="Return to nearest section top">
+        <span class="section-return-arrow" aria-hidden="true">↑</span>
+    </button>
+
+    <script src="mineport.js?v=89"></script>
 </body>
 </html>
