@@ -32,8 +32,10 @@ document.addEventListener("DOMContentLoaded", function () {
     const projectDetailPrevImage = document.getElementById("projectDetailPrevImage");
     const projectDetailNextImage = document.getElementById("projectDetailNextImage");
     const sectionReturn = document.getElementById("sectionReturn");
+    const sectionFloatingNav = document.getElementById("sectionFloatingNav");
+    const sectionFloatingLinks = document.querySelectorAll(".section-floating-link");
     const aboutInfoToggles = document.querySelectorAll(".about-info-toggle");
-    const sectionNavs = document.querySelectorAll(".top-nav, .project-top-nav, .drawings-nav, .about-nav");
+    const sectionNavs = document.querySelectorAll(".section-floating-nav");
     const sectionLinks = document.querySelectorAll('a[href^="#"]');
     const protectedLinks = document.querySelectorAll('a[href="#projects"], a[href="#drawings"], a[href="#about"], a[href="#contact"]');
     const stackedSections = document.querySelectorAll(".drawings-section, .about-section, .contact-section");
@@ -61,30 +63,41 @@ document.addEventListener("DOMContentLoaded", function () {
     let drawingsLoopReady = false;
     let drawingsVisibleCount = getDrawingsVisibleCount();
     let isSectionStackTicking = false;
+    let pendingFloatingNavSectionId = "";
+    let floatingNavIdleTimer = null;
+    let isPointerOverFloatingNav = false;
     html.classList.add("is-locked");
     body.classList.add("is-locked");
 
-    const projectDetailData = [
-        { title: "Double Interaction", location: "Taipei, Taiwan", typology: "Residential", category: "Architecture", year: "2014-2026", description: ["A spatial study shaped by shifting views, layered circulation, and a quiet exchange between structure and movement.", "The project is conceived as a sequence of measured moments where public openness and intimate pause can coexist."], images: ["project1.jpg", "project2.jpg", "project3.jpg", "project4.jpg", "project5.jpg", "project6.jpg"] },
-        { title: "Euphoria", location: "Senior Center", typology: "Education", category: "Design", year: "2018-2018", description: ["An atmospheric proposal focused on warmth, memory, and collective rhythm within a shared interior setting.", "Material contrast and soft transitions are used to create a sense of dignity, comfort, and calm energy."], images: ["project2.jpg", "project1.jpg", "project6.jpg", "project3.jpg"] },
-        { title: "Light, Stone, Hope", location: "Taipei, Taiwan", typology: "Culture", category: "Design", year: "2018-2025", description: ["A design composition where light and material weight are balanced to produce a restrained but emotional field.", "The visual language stays minimal while allowing texture, shadow, and proportion to carry the narrative."], images: ["project3.jpg", "project5.jpg", "project1.jpg", "project4.jpg"] },
-        { title: "Stone Horizon House", location: "Los Angeles, USA", typology: "Residential", category: "Architecture", year: "2018-2026", description: ["A residential concept framed by long horizons, low silhouettes, and a measured relationship between land and enclosure.", "The project explores how stillness can be expressed through geometry, light, and carefully edited material transitions."], images: ["project4.jpg", "project1.jpg", "project5.jpg", "project6.jpg", "project3.jpg"] },
-        { title: "Stone Horizon House", location: "Los Angeles, USA", typology: "Religious", category: "Design", year: "2018-2026", description: ["An interior-forward reading of the project that focuses on tactile surfaces, tone, and a disciplined editing of detail.", "Furniture, openings, and circulation are treated as part of one continuous visual composition."], images: ["project5.jpg", "project3.jpg", "project4.jpg", "project2.jpg"] },
-        { title: "Stone Horizon House", location: "Los Angeles, USA", typology: "Culture", category: "Architecture", year: "2017-2020", description: ["This version extends the project into a more image-driven exploration of atmosphere and narrative framing.", "The result is less about object and more about mood, pacing, and emotional resonance."], images: ["project6.jpg", "project2.jpg", "project1.jpg", "project5.jpg"] },
-        { title: "Stone Horizon House", location: "Los Angeles, USA", typology: "Education", category: "Architecture", year: "2016-2024", description: ["A study in structural calm and horizontal emphasis, using massing to build quiet tension against the landscape.", "Its design language moves between solidity and openness without becoming heavy."], images: ["project1.jpg", "project4.jpg", "project6.jpg", "project2.jpg", "project5.jpg"] },
-        { title: "Stone Horizon House", location: "Los Angeles, USA", typology: "Culture", category: "Design", year: "2019-2023", description: ["A visual narrative built from fragments of landscape, form, and silhouette rather than a single fixed object.", "The imagery focuses on atmosphere, contrast, and the emotional pacing of each frame."], images: ["project2.jpg", "project6.jpg", "project5.jpg", "project3.jpg"] },
-        { title: "Stone Horizon House", location: "Los Angeles, USA", typology: "Religious", category: "Design", year: "2015-2021", description: ["A design exercise in compositional order, highlighting how proportion and alignment can carry visual clarity.", "Small shifts in edge, rhythm, and material tone shape the overall reading of the space."], images: ["project3.jpg", "project1.jpg", "project5.jpg", "project2.jpg"] },
-        { title: "Stone Horizon House", location: "Los Angeles, USA", typology: "Residential", category: "Architecture", year: "2020-2024", description: ["An updated architectural proposal that refines the dialogue between envelope, light, and circulation.", "The project privileges spatial atmosphere over statement, allowing experience to unfold gradually."], images: ["project4.jpg", "project6.jpg", "project1.jpg", "project3.jpg", "project5.jpg"] },
-        { title: "Stone Horizon House", location: "Los Angeles, USA", typology: "Education", category: "Design", year: "2019-2026", description: ["A spatial design proposal centered on editing, restraint, and the visual weight of each surface condition.", "The composition seeks balance between tactile intimacy and overall formal control."], images: ["project5.jpg", "project4.jpg", "project2.jpg", "project1.jpg"] },
-        { title: "Stone Horizon House", location: "Los Angeles, USA", typology: "Religious", category: "Architecture", year: "2018-2022", description: ["A project told through image sequences that emphasize mood, tempo, and the relationship between figure and background.", "It turns architecture into an emotional frame rather than a static object."], images: ["project6.jpg", "project3.jpg", "project2.jpg", "project4.jpg"] }
-    ];
+    const projectDetailData = Array.isArray(window.MINEPORT_PROJECT_DETAIL_DATA)
+        ? window.MINEPORT_PROJECT_DETAIL_DATA
+        : [];
+    const projectDetails = projectDetailData.slice(0, projectCards.length);
 
     function buildFullDescription(detail) {
         if (!detail) {
             return "";
         }
 
-        return detail.title + " is developed as a long-form " + detail.category.toLowerCase() + " proposal shaped by atmosphere, circulation, and material clarity. Set against " + detail.location + ", the work focuses on sequence, light, and calm spatial pacing, allowing each transition to feel deliberate, immersive, and quietly memorable.";
+        return detail.title + " is developed as a long-form " + detail.category.toLowerCase() + " proposal rooted in atmosphere, spatial sequence, and material restraint. Set in " + detail.location + ", the work begins with a close reading of movement, pause, and the emotional rhythm produced between enclosure and openness. Rather than treating form as a singular object, the project is organized as a series of linked moments, where threshold, proportion, light, and visual compression gradually shape the experience of the whole. The intention is to create a setting that feels measured and quiet, but still carries strong emotional depth through contrast, texture, and pacing. " +
+            "Across the proposal, surfaces are edited carefully so that each junction, opening, and transition contributes to a more continuous architectural narrative. Light is not only used to illuminate the space, but also to structure attention, soften boundaries, and clarify the hierarchy between public and intimate zones. Material choices are imagined as part of the same composition, allowing weight, reflection, shadow, and tactile presence to work together instead of competing for emphasis. " +
+            "The result is a project that values calm over spectacle and precision over excess. It aims to feel immersive without becoming heavy, and expressive without losing discipline. In this way, " + detail.title + " becomes less a static formal statement and more a carefully paced environment, where each movement reveals another layer of spatial character, visual stillness, and lived atmosphere over time.";
+    }
+
+    function setButtonText(button, text, textSelector, textClassName) {
+        if (!button) {
+            return;
+        }
+
+        let textElement = button.querySelector(textSelector);
+
+        if (!textElement) {
+            textElement = document.createElement("span");
+            textElement.className = textClassName;
+            button.replaceChildren(textElement);
+        }
+
+        textElement.textContent = text;
     }
 
     function setProjectDetailExpanded(isExpanded) {
@@ -99,7 +112,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         projectDetailReadmore.setAttribute("aria-expanded", String(isExpanded));
-        projectDetailReadmore.innerHTML = '<span class="project-detail-readmore-text">' + (isExpanded ? "Read -" : "Read +") + "</span>";
+        setButtonText(projectDetailReadmore, isExpanded ? "Read -" : "Read +", ".project-detail-readmore-text", "project-detail-readmore-text");
     }
 
     function renderProjectGalleryMode() {
@@ -148,7 +161,7 @@ document.addEventListener("DOMContentLoaded", function () {
         projectDetailGalleryMode.setAttribute("aria-hidden", String(!isGalleryMode));
         projectDetailGalleryToggle.classList.toggle("is-active", isGalleryMode);
         projectDetailGalleryToggle.setAttribute("aria-pressed", String(isGalleryMode));
-        projectDetailGalleryToggle.innerHTML = '<span class="project-detail-badge-text">' + (isGalleryMode ? "Detail" : "Gallery") + "</span>";
+        setButtonText(projectDetailGalleryToggle, isGalleryMode ? "Detail" : "Gallery", ".project-detail-badge-text", "project-detail-badge-text");
 
         if (isGalleryMode) {
             renderProjectGalleryMode();
@@ -281,7 +294,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function openProjectDetail(index, sourceCard) {
-        const detail = projectDetailData[index];
+        const detail = projectDetails[index];
 
         if (!detail || !projectDetailOverlay) {
             return;
@@ -414,7 +427,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function preloadProjectDetailImages() {
-        const uniqueImages = Array.from(new Set(projectDetailData.flatMap(function (detail) {
+        const uniqueImages = Array.from(new Set(projectDetails.flatMap(function (detail) {
             return detail.images.slice(0, 10);
         })));
 
@@ -569,6 +582,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 activeScrollFrame = window.requestAnimationFrame(step);
             } else {
                 activeScrollFrame = null;
+                pendingFloatingNavSectionId = "";
+                updateFloatingNavState();
             }
         }
 
@@ -580,20 +595,22 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        let targetY = section.offsetTop;
-
-        if (section.classList.contains("drawings-section") || section.classList.contains("about-section") || section.classList.contains("contact-section")) {
-            const overlapOffset = window.innerWidth <= 768
-                ? window.innerHeight * 0.18
-                : window.innerHeight * 0.34;
-            targetY += overlapOffset;
-        }
+        const rect = section.getBoundingClientRect();
+        const computedStyles = window.getComputedStyle(section);
+        const marginTop = parseFloat(computedStyles.marginTop) || 0;
+        const overlapOffset = marginTop < 0 ? Math.abs(marginTop) : 0;
+        const sectionScrollOffset = parseFloat(computedStyles.getPropertyValue("--section-scroll-offset")) || 0;
+        const targetY = window.scrollY + rect.top + overlapOffset + sectionScrollOffset;
 
         smoothScrollTo(targetY);
     }
 
     function isAnyNavVisible() {
         return Array.from(sectionNavs).some(function (nav) {
+            if (!nav.classList.contains("is-visible")) {
+                return false;
+            }
+
             const rect = nav.getBoundingClientRect();
             return rect.bottom > 0 && rect.top < 120;
         });
@@ -604,8 +621,84 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        const shouldShow = window.scrollY > 240 && !isAnyNavVisible();
+        const contactSection = document.getElementById("contact");
+        const shouldShow = !!contactSection && isSectionInViewport(contactSection);
         sectionReturn.classList.toggle("is-visible", shouldShow);
+    }
+
+    function setFloatingNavCollapsed(isCollapsed) {
+        if (!sectionFloatingNav) {
+            return;
+        }
+
+        if (window.innerWidth <= 768) {
+            sectionFloatingNav.classList.remove("is-collapsed");
+            return;
+        }
+
+        sectionFloatingNav.classList.toggle("is-collapsed", isCollapsed);
+    }
+
+    function clearFloatingNavIdleTimer() {
+        if (floatingNavIdleTimer) {
+            window.clearTimeout(floatingNavIdleTimer);
+            floatingNavIdleTimer = null;
+        }
+    }
+
+    function scheduleFloatingNavCollapse() {
+        if (!sectionFloatingNav || !sectionFloatingNav.classList.contains("is-visible") || window.innerWidth <= 768) {
+            return;
+        }
+
+        clearFloatingNavIdleTimer();
+        floatingNavIdleTimer = window.setTimeout(function () {
+            setFloatingNavCollapsed(true);
+        }, 800);
+    }
+
+    function wakeFloatingNav() {
+        if (!sectionFloatingNav || !sectionFloatingNav.classList.contains("is-visible")) {
+            return;
+        }
+
+        clearFloatingNavIdleTimer();
+        setFloatingNavCollapsed(false);
+    }
+
+    function updateFloatingNavState() {
+        if (!sectionFloatingNav) {
+            return;
+        }
+
+        const currentSection = getCurrentSection();
+        const currentId = currentSection ? currentSection.id : "";
+        const activeId = pendingFloatingNavSectionId || currentId;
+        const shouldShow = hasEntered && (currentId === "projects" || currentId === "drawings" || currentId === "about");
+
+        sectionFloatingNav.classList.toggle("is-visible", shouldShow);
+
+        if (!shouldShow) {
+            setFloatingNavCollapsed(false);
+            clearFloatingNavIdleTimer();
+        } else {
+            if (window.innerWidth <= 768) {
+                setFloatingNavCollapsed(false);
+                clearFloatingNavIdleTimer();
+            } else {
+                scheduleFloatingNavCollapse();
+            }
+        }
+
+        sectionFloatingLinks.forEach(function (link) {
+            const isActive = link.dataset.sectionLink === activeId;
+            link.classList.toggle("is-active", isActive);
+            if (isActive) {
+                link.setAttribute("aria-current", "page");
+            } else {
+                link.removeAttribute("aria-current");
+            }
+        });
     }
 
     function updateSectionStackMotion() {
@@ -660,6 +753,7 @@ document.addEventListener("DOMContentLoaded", function () {
         hasEntered = true;
         html.classList.remove("is-locked");
         body.classList.remove("is-locked");
+        updateFloatingNavState();
     }
 
     if (title && !title.hasAttribute("data-static-title")) {
@@ -743,6 +837,9 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
             event.preventDefault();
+            pendingFloatingNavSectionId = targetId;
+            updateFloatingNavState();
+            wakeFloatingNav();
             smoothScrollToSection(targetSection);
         });
     });
@@ -762,7 +859,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     projectCards.forEach(function (card, index) {
-        const detail = projectDetailData[index];
+        const detail = projectDetails[index];
         card.style.setProperty("--card-index", index);
         card.setAttribute("role", "button");
         card.setAttribute("tabindex", "0");
@@ -773,7 +870,7 @@ document.addEventListener("DOMContentLoaded", function () {
         listInfo.innerHTML =
             '<p class="project-list-title">' + (detail ? detail.title : (title ? title.textContent : "")) + "</p>" +
             '<p class="project-list-category">' + (detail ? detail.category : formatCategory(card.dataset.category)) + "</p>" +
-            '<p class="project-list-location">' + (detail ? detail.typology : (location ? location.textContent : "")) + "</p>" +
+            '<p class="project-list-typology">' + (detail ? detail.typology : (location ? location.textContent : "")) + "</p>" +
             '<p class="project-list-year">' + (detail ? detail.year : (card.dataset.year || "")) + "</p>";
         card.appendChild(listInfo);
         card.addEventListener("click", function () {
@@ -943,9 +1040,41 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
+    if (sectionFloatingNav) {
+        sectionFloatingNav.addEventListener("pointerenter", function () {
+            isPointerOverFloatingNav = true;
+            wakeFloatingNav();
+        });
+        sectionFloatingNav.addEventListener("pointermove", wakeFloatingNav);
+        sectionFloatingNav.addEventListener("focusin", wakeFloatingNav);
+        sectionFloatingNav.addEventListener("pointerleave", function () {
+            isPointerOverFloatingNav = false;
+            scheduleFloatingNavCollapse();
+        });
+        sectionFloatingNav.addEventListener("focusout", function () {
+            window.setTimeout(function () {
+                if (sectionFloatingNav && !sectionFloatingNav.contains(document.activeElement)) {
+                    scheduleFloatingNavCollapse();
+                }
+            }, 0);
+        });
+    }
+
     window.addEventListener("scroll", updateSectionReturnVisibility, { passive: true });
+    window.addEventListener("scroll", function () {
+        updateFloatingNavState();
+        if (isPointerOverFloatingNav) {
+            wakeFloatingNav();
+        }
+    }, { passive: true });
+    window.addEventListener("wheel", function () {
+        wakeFloatingNav();
+    }, { passive: true });
     window.addEventListener("scroll", requestSectionStackMotion, { passive: true });
     window.addEventListener("resize", updateSectionReturnVisibility);
+    window.addEventListener("resize", function () {
+        updateFloatingNavState();
+    });
     window.addEventListener("resize", function () {
         buildDrawingsLoop();
         updateDrawingsCarousel();
@@ -956,5 +1085,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
     updateSectionReturnVisibility();
+    updateFloatingNavState();
     updateSectionStackMotion();
 });

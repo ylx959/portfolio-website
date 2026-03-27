@@ -4,18 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>YLX studio</title>
-    <link rel="stylesheet" href="mineport.css?v=147">
+    <link rel="stylesheet" href="mineport.css?v=148">
+    <link rel="stylesheet" href="mineport-overlays.css?v=1">
 </head>
 <body>
     <header class="hero" id="home">
-        <nav class="top-nav">
-            <a class="nav-link" href="#home">HOME</a>
-            <a class="nav-link" href="#projects">PROJECT</a>
-            <a class="nav-link" href="#drawings">DRAWINGS</a>
-            <a class="nav-link" href="#about">ABOUT</a>
-            <a class="nav-link" href="#contact">CONTACT</a>
-        </nav>
-
         <div class="overlay"></div>
 
         <div class="content">
@@ -41,16 +34,21 @@
         </div>
     </header>
 
+    <nav class="section-floating-nav" id="sectionFloatingNav" aria-label="Section navigation">
+        <div class="section-floating-links">
+            <a class="nav-link section-floating-link" data-section-link="home" href="#home"><span class="section-floating-link-text">HOME</span></a>
+            <a class="nav-link section-floating-link" data-section-link="projects" href="#projects"><span class="section-floating-link-text">PROJECT</span></a>
+            <a class="nav-link section-floating-link" data-section-link="drawings" href="#drawings"><span class="section-floating-link-text">DRAWINGS</span></a>
+            <a class="nav-link section-floating-link" data-section-link="about" href="#about"><span class="section-floating-link-text">ABOUT</span></a>
+            <a class="nav-link section-floating-link" data-section-link="contact" href="#contact"><span class="section-floating-link-text">CONTACT</span></a>
+        </div>
+        <a class="section-floating-logo" href="#home" aria-label="Back to home">
+            <img class="section-floating-logo-image" src="contact-logo.svg" alt="">
+        </a>
+    </nav>
+
     <main class="project-showcase" id="projects">
         <div class="showcase-shell">
-            <nav class="project-top-nav">
-                <a class="project-top-link" href="#home">HOME</a>
-                <a class="project-top-link is-active" href="#projects">PROJECT</a>
-                <a class="project-top-link" href="#drawings">DRAWINGS</a>
-                <a class="project-top-link" href="#about">ABOUT</a>
-                <a class="project-top-link" href="#contact">CONTACT</a>
-            </nav>
-
             <section class="project-intro">
                 <div class="project-categories">
                     <button class="category-link is-active" type="button" data-filter="all">All</button>
@@ -158,14 +156,6 @@
 
     <section class="drawings-section" id="drawings">
         <div class="drawings-shell">
-            <nav class="drawings-nav">
-                <a class="project-top-link" href="#home">HOME</a>
-                <a class="project-top-link" href="#projects">PROJECT</a>
-                <a class="project-top-link is-active" href="#drawings">DRAWINGS</a>
-                <a class="project-top-link" href="#about">ABOUT</a>
-                <a class="project-top-link" href="#contact">CONTACT</a>
-            </nav>
-
             <div class="drawings-hero">
                 <h2 class="drawings-title">THE MOMENTS<br><span class="drawings-title-subline">that moved me</span></h2>
             </div>
@@ -298,14 +288,6 @@
 
     <section class="about-section" id="about">
         <div class="about-shell">
-            <nav class="about-nav">
-                <a class="project-top-link" href="#home">HOME</a>
-                <a class="project-top-link" href="#projects">PROJECT</a>
-                <a class="project-top-link" href="#drawings">DRAWINGS</a>
-                <a class="project-top-link is-active" href="#about">ABOUT</a>
-                <a class="project-top-link" href="#contact">CONTACT</a>
-            </nav>
-
             <div class="about-layout">
                 <div class="about-left">
                     <div class="about-heading">
@@ -389,7 +371,7 @@
                     </div>
 
                     <div class="contact-group contact-signup-block">
-                        <p class="contact-label">Contact Me</p>
+                        <p class="contact-label">For Collabs</p>
                         <div class="contact-signup">
                             <span class="contact-input">yanglinxuan021@gmail.com</span>
                             <a class="contact-submit" href="mailto:yanglinxuan021@gmail.com"><span class="contact-submit-text">Click</span></a>
@@ -408,9 +390,7 @@
                 <div class="contact-footer-right">
                     <div class="contact-socials">
                         <a href="https://www.instagram.com/ylx_studio?utm_source=ig_web_button_share_sheet&amp;igsh=ZDNlZDc0MzIxNw==" target="_blank" rel="noreferrer">Instagram</a>
-                        <a href="#contact">Facebook</a>
-                        <a href="#contact">LinkedIn</a>
-                        <a href="#contact">X</a>
+                        <a href="https://www.linkedin.com/in/%E9%9C%96%E7%92%BF-%E6%A5%8A-3452723b6/?skipRedirect=true" target="_blank" rel="noreferrer">LinkedIn</a>
                     </div>
                 </div>
             </div>
@@ -474,6 +454,7 @@
         </div>
     </div>
 
-    <script src="mineport.js?v=132"></script>
+    <script src="mineport-project-data.js?v=1"></script>
+    <script src="mineport.js?v=133"></script>
 </body>
 </html>
