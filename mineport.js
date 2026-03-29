@@ -13,6 +13,12 @@ document.addEventListener("DOMContentLoaded", function () {
     const subtitle = document.getElementById("subtitle");
     const aboutInstagramText = document.getElementById("aboutInstagramText");
     const viewToggle = document.getElementById("viewToggle");
+    const timeFilterToggle = document.getElementById("timeFilterToggle");
+    const timeFilterPanel = document.getElementById("timeFilterPanel");
+    const timeFilterOptions = document.querySelectorAll(".time-filter-option");
+    const typologyFilterToggle = document.getElementById("typologyFilterToggle");
+    const typologyFilterPanel = document.getElementById("typologyFilterPanel");
+    const typologyFilterOptions = document.querySelectorAll(".typology-filter-option");
     const projectGrid = document.querySelector(".project-grid");
     const drawingsTrack = document.getElementById("drawingsTrack");
     const projectDetailOverlay = document.getElementById("projectDetailOverlay");
@@ -75,6 +81,11 @@ document.addEventListener("DOMContentLoaded", function () {
     let drawingsDetailCloseTimer = null;
     let isSectionStackTicking = false;
     let isDrawingsStackTicking = false;
+    let activeCategoryFilter = "all";
+    let activeYearFilter = "all";
+    let activeTypologyFilter = "all";
+    let timeFilterAutoCloseTimer = null;
+    let typologyFilterAutoCloseTimer = null;
     let pendingFloatingNavSectionId = "";
     let floatingNavIdleTimer = null;
     let isPointerOverFloatingNav = false;
@@ -97,6 +108,7 @@ document.addEventListener("DOMContentLoaded", function () {
         ? window.MINEPORT_PROJECT_DETAIL_DATA
         : [];
     const projectDetails = projectDetailData.slice(0, projectCards.length);
+    let projectEmptyState = null;
 
     function buildFullDescription(detail) {
         if (!detail) {
@@ -1093,11 +1105,116 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    function applyFilter(filter) {
-        projectCards.forEach(function (card) {
+    function applyProjectFilters() {
+        let visibleCount = 0;
+
+        projectCards.forEach(function (card, index) {
             const category = card.dataset.category;
-            const shouldShow = filter === "all" || category === filter;
+            const yearText = card.dataset.year || "";
+            const detail = projectDetails[index];
+            const typology = ((detail && detail.typology) || "").toLowerCase();
+            const matchesCategory = activeCategoryFilter === "all" || category === activeCategoryFilter;
+            const matchesYear = activeYearFilter === "all" || yearText.indexOf(activeYearFilter) !== -1;
+            const matchesTypology = activeTypologyFilter === "all" || typology === activeTypologyFilter;
+            const shouldShow = matchesCategory && matchesYear && matchesTypology;
             card.style.display = shouldShow ? "" : "none";
+
+            if (shouldShow) {
+                visibleCount += 1;
+            }
+        });
+
+        if (projectEmptyState) {
+            projectEmptyState.classList.toggle("is-visible", visibleCount === 0);
+        }
+    }
+
+    function clearTimeFilterAutoCloseTimer() {
+        if (timeFilterAutoCloseTimer) {
+            window.clearTimeout(timeFilterAutoCloseTimer);
+            timeFilterAutoCloseTimer = null;
+        }
+    }
+
+    function scheduleTimeFilterAutoClose() {
+        if (!timeFilterPanel || !timeFilterToggle || !timeFilterPanel.classList.contains("is-open")) {
+            return;
+        }
+
+        clearTimeFilterAutoCloseTimer();
+        timeFilterAutoCloseTimer = window.setTimeout(function () {
+            if (!timeFilterPanel.matches(":hover") && !timeFilterToggle.matches(":hover")) {
+                setTimeFilterPanelOpen(false);
+            }
+        }, 1500);
+    }
+
+    function setTimeFilterPanelOpen(isOpen) {
+        if (!timeFilterPanel || !timeFilterToggle) {
+            return;
+        }
+
+        clearTimeFilterAutoCloseTimer();
+        timeFilterPanel.classList.toggle("is-open", isOpen);
+        timeFilterPanel.setAttribute("aria-hidden", String(!isOpen));
+        timeFilterToggle.setAttribute("aria-expanded", String(isOpen));
+
+        if (isOpen) {
+            scheduleTimeFilterAutoClose();
+        }
+    }
+
+    function clearTypologyFilterAutoCloseTimer() {
+        if (typologyFilterAutoCloseTimer) {
+            window.clearTimeout(typologyFilterAutoCloseTimer);
+            typologyFilterAutoCloseTimer = null;
+        }
+    }
+
+    function scheduleTypologyFilterAutoClose() {
+        if (!typologyFilterPanel || !typologyFilterToggle || !typologyFilterPanel.classList.contains("is-open")) {
+            return;
+        }
+
+        clearTypologyFilterAutoCloseTimer();
+        typologyFilterAutoCloseTimer = window.setTimeout(function () {
+            if (!typologyFilterPanel.matches(":hover") && !typologyFilterToggle.matches(":hover")) {
+                setTypologyFilterPanelOpen(false);
+            }
+        }, 1500);
+    }
+
+    function setTypologyFilterPanelOpen(isOpen) {
+        if (!typologyFilterPanel || !typologyFilterToggle) {
+            return;
+        }
+
+        clearTypologyFilterAutoCloseTimer();
+        typologyFilterPanel.classList.toggle("is-open", isOpen);
+        typologyFilterPanel.setAttribute("aria-hidden", String(!isOpen));
+        typologyFilterToggle.setAttribute("aria-expanded", String(isOpen));
+
+        if (isOpen) {
+            scheduleTypologyFilterAutoClose();
+        }
+    }
+
+    function syncFilterPanelOffsets() {
+        [
+            [timeFilterToggle, timeFilterPanel],
+            [typologyFilterToggle, typologyFilterPanel]
+        ].forEach(function (entry) {
+            const toggle = entry[0];
+            const panel = entry[1];
+
+            if (!toggle || !panel || !panel.parentElement) {
+                return;
+            }
+
+            const panelParentRect = panel.parentElement.getBoundingClientRect();
+            const toggleRect = toggle.getBoundingClientRect();
+            const offset = Math.max(toggleRect.left - panelParentRect.left, 0);
+            panel.style.setProperty("--filter-panel-offset", offset.toFixed(1) + "px");
         });
     }
 
@@ -1132,6 +1249,13 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
     });
+
+    if (projectGrid) {
+        projectEmptyState = document.createElement("p");
+        projectEmptyState.className = "project-empty-state";
+        projectEmptyState.textContent = "More works are continuously being updated. Please check back soon.";
+        projectGrid.insertAdjacentElement("afterend", projectEmptyState);
+    }
 
     if (drawingsTrack) {
         drawingsTrack.addEventListener("click", function (event) {
@@ -1169,8 +1293,85 @@ document.addEventListener("DOMContentLoaded", function () {
             });
 
             link.classList.add("is-active");
-            applyFilter(filter);
+            activeCategoryFilter = filter;
+            applyProjectFilters();
         });
+    });
+
+    if (timeFilterToggle && timeFilterPanel) {
+        timeFilterToggle.addEventListener("click", function () {
+            const willOpen = !timeFilterPanel.classList.contains("is-open");
+            setTimeFilterPanelOpen(willOpen);
+        });
+
+        timeFilterToggle.addEventListener("mouseenter", clearTimeFilterAutoCloseTimer);
+        timeFilterToggle.addEventListener("mouseleave", scheduleTimeFilterAutoClose);
+        timeFilterPanel.addEventListener("mouseenter", clearTimeFilterAutoCloseTimer);
+        timeFilterPanel.addEventListener("mouseleave", scheduleTimeFilterAutoClose);
+    }
+
+    if (typologyFilterToggle && typologyFilterPanel) {
+        typologyFilterToggle.addEventListener("click", function () {
+            const willOpen = !typologyFilterPanel.classList.contains("is-open");
+            setTypologyFilterPanelOpen(willOpen);
+        });
+
+        typologyFilterToggle.addEventListener("mouseenter", clearTypologyFilterAutoCloseTimer);
+        typologyFilterToggle.addEventListener("mouseleave", scheduleTypologyFilterAutoClose);
+        typologyFilterPanel.addEventListener("mouseenter", clearTypologyFilterAutoCloseTimer);
+        typologyFilterPanel.addEventListener("mouseleave", scheduleTypologyFilterAutoClose);
+    }
+
+    timeFilterOptions.forEach(function (option) {
+        option.addEventListener("click", function () {
+            activeYearFilter = option.dataset.yearFilter || "all";
+
+            timeFilterOptions.forEach(function (item) {
+                item.classList.remove("is-active");
+            });
+
+            option.classList.add("is-active");
+            applyProjectFilters();
+            scheduleTimeFilterAutoClose();
+        });
+    });
+
+    typologyFilterOptions.forEach(function (option) {
+        option.addEventListener("click", function () {
+            activeTypologyFilter = option.dataset.typologyFilter || "all";
+
+            typologyFilterOptions.forEach(function (item) {
+                item.classList.remove("is-active");
+            });
+
+            option.classList.add("is-active");
+            applyProjectFilters();
+            scheduleTypologyFilterAutoClose();
+        });
+    });
+
+    document.addEventListener("click", function (event) {
+        if (!timeFilterPanel || !timeFilterToggle) {
+            if (typologyFilterPanel && typologyFilterToggle && !typologyFilterPanel.contains(event.target) && !typologyFilterToggle.contains(event.target)) {
+                setTypologyFilterPanelOpen(false);
+            }
+
+            return;
+        }
+
+        if (timeFilterPanel.contains(event.target) || timeFilterToggle.contains(event.target)) {
+            if (typologyFilterPanel && typologyFilterToggle && !typologyFilterPanel.contains(event.target) && !typologyFilterToggle.contains(event.target)) {
+                setTypologyFilterPanelOpen(false);
+            }
+
+            return;
+        }
+
+        setTimeFilterPanelOpen(false);
+
+        if (typologyFilterPanel && typologyFilterToggle && !typologyFilterPanel.contains(event.target) && !typologyFilterToggle.contains(event.target)) {
+            setTypologyFilterPanelOpen(false);
+        }
     });
 
     if (viewToggle && projectGrid) {
@@ -1188,6 +1389,8 @@ document.addEventListener("DOMContentLoaded", function () {
             }, 2050);
         });
     }
+
+    syncFilterPanelOffsets();
 
     if (sectionReturn) {
         sectionReturn.addEventListener("click", function () {
@@ -1369,6 +1572,7 @@ document.addEventListener("DOMContentLoaded", function () {
         updateDrawingsCarousel();
         requestDrawingsStackMotion();
         updateSectionStackMotion();
+        syncFilterPanelOffsets();
 
         if (projectDetailShell && projectDetailShell.classList.contains("is-gallery-mode")) {
             renderProjectGalleryMode();

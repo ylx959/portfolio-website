@@ -71,11 +71,11 @@
                 </div>
 
                 <div class="project-filters">
-                    <button class="filter-chip" type="button">
+                    <button class="filter-chip" type="button" id="timeFilterToggle" aria-expanded="false" aria-controls="timeFilterPanel">
                         <span>Time</span>
                         <span class="filter-plus">+</span>
                     </button>
-                    <button class="filter-chip" type="button">
+                    <button class="filter-chip" type="button" id="typologyFilterToggle" aria-expanded="false" aria-controls="typologyFilterPanel">
                         <span>Typology</span>
                         <span class="filter-plus">+</span>
                     </button>
@@ -87,6 +87,22 @@
                             </span>
                         </span>
                     </button>
+                </div>
+
+                <div class="time-filter-panel" id="timeFilterPanel" aria-hidden="true">
+                    <button class="time-filter-option is-active" type="button" data-year-filter="all">All</button>
+                    <button class="time-filter-option" type="button" data-year-filter="2023">2023</button>
+                    <button class="time-filter-option" type="button" data-year-filter="2024">2024</button>
+                    <button class="time-filter-option" type="button" data-year-filter="2025">2025</button>
+                    <button class="time-filter-option" type="button" data-year-filter="2026">2026</button>
+                </div>
+
+                <div class="time-filter-panel typology-filter-panel" id="typologyFilterPanel" aria-hidden="true">
+                    <button class="time-filter-option typology-filter-option is-active" type="button" data-typology-filter="all">All</button>
+                    <button class="time-filter-option typology-filter-option" type="button" data-typology-filter="residential">Residential</button>
+                    <button class="time-filter-option typology-filter-option" type="button" data-typology-filter="culture">Culture</button>
+                    <button class="time-filter-option typology-filter-option" type="button" data-typology-filter="education">Education</button>
+                    <button class="time-filter-option typology-filter-option" type="button" data-typology-filter="religious">Religious</button>
                 </div>
             </section>
 
