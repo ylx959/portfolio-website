@@ -136,7 +136,19 @@
     outline: none;
 }
 
+.project-detail-badge.is-active:hover,
+.project-detail-badge.is-active:focus-visible {
+    background: #ddd8cf;
+    color: #5f554e;
+    box-shadow: 0 10px 20px rgba(20, 19, 17, 0.1);
+}
+
 .project-detail-badge.is-scrolling .project-detail-badge-text {
+    animation: badge-scroll 0.5s cubic-bezier(0.32, 0.9, 0.34, 1) 1;
+}
+
+.project-detail-badge:hover .project-detail-badge-text,
+.project-detail-badge:focus-visible .project-detail-badge-text {
     animation: badge-scroll 0.5s cubic-bezier(0.32, 0.9, 0.34, 1) 1;
 }
 
@@ -234,11 +246,32 @@
     letter-spacing: 0.16em;
     text-transform: uppercase;
     cursor: pointer;
+    transition: color 0.22s ease, opacity 0.22s ease;
 }
 
 .project-detail-readmore-text {
     display: inline-block;
     transition: transform 0.22s ease, opacity 0.22s ease;
+}
+
+.project-detail-readmore:hover,
+.project-detail-readmore:focus-visible {
+    color: #1f1d1b;
+    opacity: 1;
+    outline: none;
+}
+
+.project-detail-readmore:hover .project-detail-readmore-text,
+.project-detail-readmore:focus-visible .project-detail-readmore-text {
+    transform: none;
+}
+
+.project-detail-readmore:active {
+    color: #47433f;
+}
+
+.project-detail-readmore:active .project-detail-readmore-text {
+    transform: none;
 }
 
 .project-detail-readmore.is-scrolling .project-detail-readmore-text {
@@ -519,7 +552,7 @@
     max-height: min(94vh, 980px);
     object-fit: contain;
     border-radius: 10px;
-    background: #ece9e3;
+    background: #ffffff;
     box-shadow: 0 28px 80px rgba(0, 0, 0, 0.22);
 }
 

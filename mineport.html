@@ -10,6 +10,20 @@
 <body>
     <header class="hero" id="home">
         <div class="overlay"></div>
+        <div class="hero-visual" id="heroVisual" aria-hidden="true">
+        </div>
+        <div class="hero-visual-sides" aria-hidden="true">
+            <div class="hero-visual-side hero-visual-side-left">
+                <span class="hero-visual-copy">Hello</span>
+            </div>
+            <div class="hero-visual-side hero-visual-side-right">
+                <span class="hero-visual-copy" id="heroEnteredName">Guest</span>
+            </div>
+        </div>
+        <div class="hero-sentence" aria-hidden="true">
+            <span class="hero-sentence-copy hero-sentence-copy-left">Hello</span>
+            <span class="hero-sentence-copy hero-sentence-copy-right" id="heroSentenceName">Guest</span>
+        </div>
 
         <div class="content">
             <h1 class="title" data-static-title="true" aria-label="YLX studio">
@@ -28,7 +42,7 @@
             </div>
 
             <form class="form" id="enterForm" autocomplete="off">
-                <input class="input" type="text" placeholder="Name" id="name" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" autofocus>
+                <input class="input" type="text" placeholder="Name · only en." id="name" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" inputmode="latin" pattern="[A-Za-z][A-Za-z\\s'-]*" title="Please enter your name in English letters.">
                 <button class="btn" type="submit" id="enterButton" disabled>Enter</button>
             </form>
         </div>
@@ -157,14 +171,10 @@
     <section class="drawings-section" id="drawings">
         <div class="drawings-shell">
             <div class="drawings-hero">
-                <h2 class="drawings-title">THE MOMENTS<br><span class="drawings-title-subline">that moved me</span></h2>
+                <h2 class="drawings-title">THE<br>MOMENTS<br><span class="drawings-title-subline">that moved me</span></h2>
             </div>
 
             <div class="drawings-carousel">
-                <button class="drawings-arrow drawings-arrow-left" id="drawingsPrev" type="button" aria-label="Previous drawing">
-                    <span class="drawings-arrow-glyph" aria-hidden="true">←</span>
-                </button>
-
                 <div class="drawings-viewport">
                     <div class="drawings-track" id="drawingsTrack">
                         <article class="drawings-card">
@@ -181,7 +191,7 @@
                         <article class="drawings-card">
                             <div class="drawings-media-wrap">
                                 <span class="drawings-index">002</span>
-                                <img class="drawings-image" src="drawings.png" alt="Drawing study 002">
+                                <img class="drawings-image" src="drawings1.png" alt="Drawing study 002">
                                 <div class="drawings-caption">
                                     <h3>Visual Study Two</h3>
                                     <p>Observation - Detail - Rhythm</p>
@@ -192,7 +202,7 @@
                         <article class="drawings-card">
                             <div class="drawings-media-wrap">
                                 <span class="drawings-index">003</span>
-                                <img class="drawings-image" src="drawings.png" alt="Drawing study 003">
+                                <img class="drawings-image" src="drawings2.JPG" alt="Drawing study 003">
                                 <div class="drawings-caption">
                                     <h3>Visual Study Three</h3>
                                     <p>Texture - Memory - Editing</p>
@@ -203,7 +213,7 @@
                         <article class="drawings-card">
                             <div class="drawings-media-wrap">
                                 <span class="drawings-index">004</span>
-                                <img class="drawings-image" src="drawings.png" alt="Drawing study 004">
+                                <img class="drawings-image" src="drawings3.JPG" alt="Drawing study 004">
                                 <div class="drawings-caption">
                                     <h3>Visual Study Four</h3>
                                     <p>Framing - Shadow - Sequence</p>
@@ -214,7 +224,7 @@
                         <article class="drawings-card">
                             <div class="drawings-media-wrap">
                                 <span class="drawings-index">005</span>
-                                <img class="drawings-image" src="drawings.png" alt="Drawing study 005">
+                                <img class="drawings-image" src="drawings4.JPG" alt="Drawing study 005">
                                 <div class="drawings-caption">
                                     <h3>Visual Study Five</h3>
                                     <p>Sketch - Form - Quiet</p>
@@ -225,7 +235,7 @@
                         <article class="drawings-card">
                             <div class="drawings-media-wrap">
                                 <span class="drawings-index">006</span>
-                                <img class="drawings-image" src="drawings.png" alt="Drawing study 006">
+                                <img class="drawings-image" src="drawings5.JPG" alt="Drawing study 006">
                                 <div class="drawings-caption">
                                     <h3>Visual Study Six</h3>
                                     <p>Line - Timing - View</p>
@@ -236,7 +246,7 @@
                         <article class="drawings-card">
                             <div class="drawings-media-wrap">
                                 <span class="drawings-index">007</span>
-                                <img class="drawings-image" src="drawings.png" alt="Drawing study 007">
+                                <img class="drawings-image" src="drawings6.JPG" alt="Drawing study 007">
                                 <div class="drawings-caption">
                                     <h3>Visual Study Seven</h3>
                                     <p>Frame - Memory - Tone</p>
@@ -247,7 +257,7 @@
                         <article class="drawings-card">
                             <div class="drawings-media-wrap">
                                 <span class="drawings-index">008</span>
-                                <img class="drawings-image" src="drawings.png" alt="Drawing study 008">
+                                <img class="drawings-image" src="drawings7.JPG" alt="Drawing study 008">
                                 <div class="drawings-caption">
                                     <h3>Visual Study Eight</h3>
                                     <p>Surface - Space - Detail</p>
@@ -258,7 +268,7 @@
                         <article class="drawings-card">
                             <div class="drawings-media-wrap">
                                 <span class="drawings-index">009</span>
-                                <img class="drawings-image" src="drawings.png" alt="Drawing study 009">
+                                <img class="drawings-image" src="drawings8.png" alt="Drawing study 009">
                                 <div class="drawings-caption">
                                     <h3>Visual Study Nine</h3>
                                     <p>Research - Pace - Focus</p>
@@ -269,19 +279,16 @@
                         <article class="drawings-card">
                             <div class="drawings-media-wrap">
                                 <span class="drawings-index">010</span>
-                                <img class="drawings-image" src="drawings.png" alt="Drawing study 010">
+                                <img class="drawings-image" src="drawings9.jpg" alt="Drawing study 010">
                                 <div class="drawings-caption">
                                     <h3>Visual Study Ten</h3>
                                     <p>Atmosphere - Edit - Sequence</p>
                                 </div>
                             </div>
                         </article>
+
                     </div>
                 </div>
-
-                <button class="drawings-arrow drawings-arrow-right" id="drawingsNext" type="button" aria-label="Next drawing">
-                    <span class="drawings-arrow-glyph" aria-hidden="true">→</span>
-                </button>
             </div>
         </div>
     </section>
@@ -322,6 +329,11 @@
                             </div>
                         </div>
                     </div>
+
+                    <a class="about-support-link about-support-link-standalone" href="https://www.buymeacoffee.com/" target="_blank" rel="noreferrer">
+                        <span class="about-support-link-note">If you enjoyed my work, thank you for supporting the studio.</span>
+                        <span class="about-support-link-text">Buy Me a Coffee</span>
+                    </a>
                 </div>
 
                 <div class="about-right">

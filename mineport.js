@@ -4,14 +4,17 @@ document.addEventListener("DOMContentLoaded", function () {
     const enterForm = document.getElementById("enterForm");
     const nameInput = document.getElementById("name");
     const enterButton = document.getElementById("enterButton");
+    const hero = document.querySelector(".hero");
+    const heroContent = document.querySelector(".content");
+    const heroVisual = document.getElementById("heroVisual");
+    const heroEnteredName = document.getElementById("heroEnteredName");
+    const heroSentenceName = document.getElementById("heroSentenceName");
     const title = document.querySelector(".title");
     const subtitle = document.getElementById("subtitle");
     const aboutInstagramText = document.getElementById("aboutInstagramText");
     const viewToggle = document.getElementById("viewToggle");
     const projectGrid = document.querySelector(".project-grid");
     const drawingsTrack = document.getElementById("drawingsTrack");
-    const drawingsPrev = document.getElementById("drawingsPrev");
-    const drawingsNext = document.getElementById("drawingsNext");
     const projectDetailOverlay = document.getElementById("projectDetailOverlay");
     const projectDetailClose = document.getElementById("projectDetailClose");
     const projectDetailGalleryToggle = document.getElementById("projectDetailGalleryToggle");
@@ -42,8 +45,18 @@ document.addEventListener("DOMContentLoaded", function () {
     const categoryLinks = document.querySelectorAll(".category-link");
     const projectCards = document.querySelectorAll(".project-card");
     const defaultSubtitleText = "welcome to my home page.";
+    const heroIntroDelay = 2000;
+    const descriptionRevealDelay = 2000;
+    const descriptionRevealDuration = 4200;
     const scrollDuration = 1600;
     const subtitleEnterAnimationDuration = 760;
+    const HERO_PHASES = {
+        IDLE: "idle",
+        ENTERING: "entering",
+        MORPHED: "morphed",
+        SCRUBBING: "scrubbing",
+        COMPLETE: "complete"
+    };
     const sections = ["home", "projects", "drawings", "about", "contact"]
         .map(function (id) {
             return document.getElementById(id);
@@ -52,6 +65,7 @@ document.addEventListener("DOMContentLoaded", function () {
     let hasEntered = false;
     let activeScrollFrame = null;
     let hasPlayedFirstTypedAnimation = false;
+    let isDescriptionRevealComplete = false;
     let lastFocusedProjectCard = null;
     let lastFocusedDrawingCard = null;
     let projectDetailCloseTimer = null;
@@ -59,13 +73,23 @@ document.addEventListener("DOMContentLoaded", function () {
     let currentProjectGalleryImages = [];
     let currentProjectGalleryImageIndex = 0;
     let drawingsDetailCloseTimer = null;
-    let drawingsIndex = 0;
-    let drawingsLoopReady = false;
-    let drawingsVisibleCount = getDrawingsVisibleCount();
     let isSectionStackTicking = false;
+    let isDrawingsStackTicking = false;
     let pendingFloatingNavSectionId = "";
     let floatingNavIdleTimer = null;
     let isPointerOverFloatingNav = false;
+    let heroTouchStartY = null;
+    const heroState = {
+        phase: HERO_PHASES.IDLE,
+        progress: 0,
+        isStoryUnlocked: false,
+        isAwaitingAutoScroll: false
+    };
+    const heroTimers = {
+        morph: null,
+        unlock: null,
+        autoScroll: null
+    };
     html.classList.add("is-locked");
     body.classList.add("is-locked");
 
@@ -190,7 +214,30 @@ document.addEventListener("DOMContentLoaded", function () {
         enterButton.disabled = nameInput.value.trim() === "";
     }
 
-    function wrapDrawingsTitleText(element, text, startIndex) {
+    function sanitizeEnglishName(value) {
+        return (value || "")
+            .replace(/[^A-Za-z\s'-]/g, "")
+            .replace(/\s{2,}/g, " ")
+            .replace(/^\s+/, "");
+    }
+
+    function formatDisplayName(value) {
+        return sanitizeEnglishName(value)
+            .toLowerCase()
+            .replace(/\b[a-z]/g, function (match) {
+                return match.toUpperCase();
+            });
+    }
+
+    function markDescriptionRevealComplete() {
+        isDescriptionRevealComplete = true;
+
+        if (enterForm) {
+            enterForm.classList.add("is-visible");
+        }
+    }
+
+    function wrapWaveText(text, startIndex) {
         return Array.from(text).map(function (char, offset) {
             const safeChar = char === " " ? "&nbsp;" : char;
             return '<span class="drawings-title-char" style="--char-index:' + (startIndex + offset) + '">' + safeChar + "</span>";
@@ -205,19 +252,45 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         const subline = drawingsTitle.querySelector(".drawings-title-subline");
-        const mainText = drawingsTitle.childNodes[0] ? drawingsTitle.childNodes[0].textContent.trim() : "";
+        const titleNodes = Array.from(drawingsTitle.childNodes).filter(function (node) {
+            return !(subline && node === subline);
+        });
+        const mainParts = titleNodes
+            .map(function (node) {
+                if (node.nodeType === Node.TEXT_NODE) {
+                    return node.textContent.trim();
+                }
+
+                if (node.nodeName === "BR") {
+                    return "\n";
+                }
+
+                return "";
+            })
+            .join("")
+            .split("\n")
+            .map(function (part) {
+                return part.trim();
+            })
+            .filter(Boolean);
         const sublineText = subline ? subline.textContent.trim() : "";
-        const mainMarkup = wrapDrawingsTitleText(drawingsTitle, mainText, 0);
-        const sublineMarkup = subline ? wrapDrawingsTitleText(subline, sublineText, mainText.length) : "";
+        let charIndexOffset = 0;
+        const mainMarkup = mainParts.map(function (part) {
+            const markup = '<span class="drawings-title-line" aria-hidden="true">' + wrapWaveText(part, charIndexOffset) + "</span>";
+            charIndexOffset += part.length;
+            return markup;
+        }).join("<br>");
+        const sublineMarkup = subline ? wrapWaveText(sublineText, charIndexOffset) : "";
+        const accessibleMainText = mainParts.join(" ");
 
         drawingsTitle.setAttribute("data-wave-ready", "true");
-        drawingsTitle.setAttribute("aria-label", (mainText + " " + sublineText).trim());
+        drawingsTitle.setAttribute("aria-label", (accessibleMainText + " " + sublineText).trim());
         drawingsTitle.innerHTML =
-            '<span class="drawings-title-line" aria-hidden="true">' + mainMarkup + "</span><br>" +
+            mainMarkup + "<br>" +
             '<span class="drawings-title-subline" aria-hidden="true">' + sublineMarkup + "</span>";
 
         let isDrawingsTitleWaving = false;
-        const drawingsTitleCharCount = (mainText + sublineText).length;
+        const drawingsTitleCharCount = (accessibleMainText + sublineText).length;
         const drawingsTitleWaveDuration = 1020 + Math.max(drawingsTitleCharCount - 1, 0) * 90;
 
         function triggerDrawingsTitleWave() {
@@ -240,47 +313,70 @@ document.addEventListener("DOMContentLoaded", function () {
         drawingsTitle.addEventListener("focusin", triggerDrawingsTitleWave);
     }
 
+    function setupSubtitleWaveAnimation() {
+        if (!subtitle || subtitle.hasAttribute("data-wave-ready")) {
+            return;
+        }
+
+        const subtitleText = defaultSubtitleText;
+        subtitle.setAttribute("data-wave-ready", "true");
+        subtitle.setAttribute("aria-label", subtitleText);
+        subtitle.innerHTML = '<span class="subtitle-line" aria-hidden="true">' + wrapWaveText(subtitleText, 0) + "</span>";
+
+        let isSubtitleWaving = false;
+        const subtitleWaveDuration = 1020 + Math.max(subtitleText.length - 1, 0) * 90;
+
+        function triggerSubtitleWave() {
+            if (!heroContent || !heroContent.classList.contains("is-intro-ready")) {
+                return;
+            }
+
+            if (isSubtitleWaving) {
+                return;
+            }
+
+            isSubtitleWaving = true;
+            subtitle.classList.remove("is-waving");
+            void subtitle.offsetWidth;
+            subtitle.classList.add("is-waving");
+
+            window.setTimeout(function () {
+                subtitle.classList.remove("is-waving");
+                isSubtitleWaving = false;
+            }, subtitleWaveDuration);
+        }
+
+        subtitle.addEventListener("pointerenter", triggerSubtitleWave);
+        subtitle.addEventListener("focusin", triggerSubtitleWave);
+    }
+
     function updateSubtitle() {
         if (!nameInput || !subtitle) {
             return;
         }
 
-        const enteredName = nameInput.value.trim();
-        const subtitleText = enteredName === "" ? defaultSubtitleText : "welcome, " + enteredName;
+        const enteredName = formatDisplayName(nameInput.value).trim();
+        const subtitleText = defaultSubtitleText;
+        const heroNameText = enteredName === "" ? "Guest" : enteredName;
 
-        if (enteredName === "") {
-            setAnimatedText(subtitle, subtitleText, 22);
-        } else if (!hasPlayedFirstTypedAnimation) {
-            setAnimatedText(subtitle, subtitleText, 22);
+        if (!hasPlayedFirstTypedAnimation) {
+            setupSubtitleWaveAnimation();
             hasPlayedFirstTypedAnimation = true;
-        } else {
-            setStaticText(subtitle, subtitleText);
+        }
+
+        if (heroEnteredName) {
+            heroEnteredName.textContent = heroNameText;
+        }
+
+        if (heroSentenceName) {
+            heroSentenceName.textContent = heroNameText;
         }
 
         if (aboutInstagramText) {
             aboutInstagramText.textContent = enteredName === ""
-                ? "Do you want to connect to YLX studio on Instagram?"
-                : enteredName + ", do you want to connect to YLX studio on Instagram?";
+                ? "Would you like to connect with YLX Studio on Instagram?"
+                : enteredName + ", would you like to connect with YLX Studio on Instagram?";
         }
-    }
-
-    function setAnimatedText(element, text, stagger) {
-        if (!element) {
-            return;
-        }
-
-        element.textContent = "";
-        element.classList.add("is-animated");
-        element.setAttribute("aria-label", text);
-
-        Array.from(text).forEach(function (char, index) {
-            const span = document.createElement("span");
-            span.className = "hero-char" + (char === " " ? " is-space" : "");
-            span.textContent = char === " " ? "\u00A0" : char;
-            span.setAttribute("aria-hidden", "true");
-            span.style.animationDelay = (index * stagger) + "ms";
-            element.appendChild(span);
-        });
     }
 
     function setStaticText(element, text) {
@@ -444,6 +540,18 @@ document.addEventListener("DOMContentLoaded", function () {
             : 1 - Math.pow(-2 * progress + 2, 3) / 2;
     }
 
+    function easeOutBack(progress, overshoot) {
+        const clamped = Math.max(0, Math.min(progress, 1));
+        const c1 = overshoot;
+        const c3 = c1 + 1;
+
+        return 1 + (c3 * Math.pow(clamped - 1, 3)) + (c1 * Math.pow(clamped - 1, 2));
+    }
+
+    function isMobileHeroMode() {
+        return window.innerWidth <= 768;
+    }
+
     function getDrawingsVisibleCount() {
         if (window.innerWidth <= 768) {
             return 1;
@@ -461,104 +569,46 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        const baseCards = Array.from(drawingsTrack.querySelectorAll(".drawings-card")).filter(function (card) {
-            return !card.hasAttribute("data-clone");
+        drawingsTrack.querySelectorAll(".drawings-card").forEach(function (card, index) {
+            card.style.setProperty("--drawings-card-index", String(index));
+            card.style.setProperty("--drawings-card-scale", "0.94");
         });
-
-        baseCards.forEach(function (card, index) {
-            card.setAttribute("data-base-index", String(index));
-        });
-
-        drawingsTrack.querySelectorAll('[data-clone="true"]').forEach(function (card) {
-            card.remove();
-        });
-
-        drawingsVisibleCount = getDrawingsVisibleCount();
-
-        if (!baseCards.length) {
-            return;
-        }
-
-        const prependCards = baseCards.slice(-drawingsVisibleCount).map(function (card) {
-            const clone = card.cloneNode(true);
-            clone.setAttribute("data-clone", "true");
-            return clone;
-        });
-
-        const appendCards = baseCards.slice(0, drawingsVisibleCount).map(function (card) {
-            const clone = card.cloneNode(true);
-            clone.setAttribute("data-clone", "true");
-            return clone;
-        });
-
-        prependCards.forEach(function (clone) {
-            drawingsTrack.insertBefore(clone, drawingsTrack.firstChild);
-        });
-
-        appendCards.forEach(function (clone) {
-            drawingsTrack.appendChild(clone);
-        });
-
-        drawingsTrack.style.transition = "none";
-        drawingsIndex = drawingsVisibleCount;
-        drawingsLoopReady = true;
     }
 
-    function updateDrawingsCarousel() {
-        if (!drawingsTrack) {
+    function updateDrawingsCarousel() {}
+
+    function shiftDrawingsCarousel() {}
+
+    function normalizeDrawingsLoopPosition() {}
+
+    function updateDrawingsStackMotion() {
+        if (!drawingsTrack || window.innerWidth <= 768) {
             return;
         }
 
-        const cards = drawingsTrack.querySelectorAll(".drawings-card");
-        const gap = window.innerWidth <= 768 ? 16 : 24;
-        const viewport = drawingsTrack.parentElement;
+        const cards = Array.from(drawingsTrack.querySelectorAll(".drawings-card"));
+        const stickyBaseTop = 148;
 
-        if (!cards.length || !viewport) {
-            return;
-        }
+        cards.forEach(function (card, index) {
+            const rect = card.getBoundingClientRect();
+            const cardTop = stickyBaseTop + (index * 14);
+            const progress = Math.max(0, Math.min((window.innerHeight - rect.top - 80) / (window.innerHeight - cardTop), 1));
+            const scale = 0.94 + (progress * 0.04);
 
-        drawingsVisibleCount = getDrawingsVisibleCount();
-        const cardWidth = (viewport.clientWidth - (gap * (drawingsVisibleCount - 1))) / drawingsVisibleCount;
-        const translateX = (cardWidth + gap) * drawingsIndex * -1;
-        drawingsTrack.style.transform = "translateX(" + translateX + "px)";
+            card.style.setProperty("--drawings-card-scale", scale.toFixed(4));
+        });
     }
 
-    function shiftDrawingsCarousel(direction) {
-        if (!drawingsTrack || !drawingsLoopReady) {
+    function requestDrawingsStackMotion() {
+        if (isDrawingsStackTicking) {
             return;
         }
 
-        const baseCardsCount = drawingsTrack.querySelectorAll(".drawings-card:not([data-clone])").length;
-
-        if (!baseCardsCount) {
-            return;
-        }
-
-        drawingsTrack.style.transition = "transform 0.8s cubic-bezier(0.2, 0.92, 0.24, 1)";
-        drawingsIndex += direction;
-        updateDrawingsCarousel();
-    }
-
-    function normalizeDrawingsLoopPosition() {
-        if (!drawingsTrack || !drawingsLoopReady) {
-            return;
-        }
-
-        const baseCardsCount = drawingsTrack.querySelectorAll(".drawings-card:not([data-clone])").length;
-
-        if (!baseCardsCount) {
-            return;
-        }
-
-        if (drawingsIndex >= baseCardsCount + drawingsVisibleCount) {
-            drawingsTrack.style.transition = "none";
-            drawingsIndex = drawingsVisibleCount;
-            updateDrawingsCarousel();
-        } else if (drawingsIndex < drawingsVisibleCount) {
-            drawingsTrack.style.transition = "none";
-            drawingsIndex = baseCardsCount + drawingsVisibleCount - 1;
-            updateDrawingsCarousel();
-        }
+        isDrawingsStackTicking = true;
+        window.requestAnimationFrame(function () {
+            updateDrawingsStackMotion();
+            isDrawingsStackTicking = false;
+        });
     }
 
     function smoothScrollTo(targetY) {
@@ -582,6 +632,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 activeScrollFrame = window.requestAnimationFrame(step);
             } else {
                 activeScrollFrame = null;
+                heroState.isAwaitingAutoScroll = false;
                 pendingFloatingNavSectionId = "";
                 updateFloatingNavState();
             }
@@ -603,6 +654,174 @@ document.addEventListener("DOMContentLoaded", function () {
         const targetY = window.scrollY + rect.top + overlapOffset + sectionScrollOffset;
 
         smoothScrollTo(targetY);
+    }
+
+    function clearHeroStoryCompletionTimer() {
+        if (heroTimers.autoScroll) {
+            window.clearTimeout(heroTimers.autoScroll);
+            heroTimers.autoScroll = null;
+        }
+    }
+
+    function clearHeroStoryUnlockTimer() {
+        if (heroTimers.unlock) {
+            window.clearTimeout(heroTimers.unlock);
+            heroTimers.unlock = null;
+        }
+    }
+
+    function clearHeroMorphTimer() {
+        if (heroTimers.morph) {
+            window.clearTimeout(heroTimers.morph);
+            heroTimers.morph = null;
+        }
+    }
+
+    function scheduleHeroTimer(timerKey, delay, callback) {
+        if (!Object.prototype.hasOwnProperty.call(heroTimers, timerKey)) {
+            return null;
+        }
+
+        if (heroTimers[timerKey]) {
+            window.clearTimeout(heroTimers[timerKey]);
+        }
+
+        heroTimers[timerKey] = window.setTimeout(function () {
+            heroTimers[timerKey] = null;
+            callback();
+        }, delay);
+
+        return heroTimers[timerKey];
+    }
+
+    function syncHeroPhaseClasses() {
+        if (!hero) {
+            return;
+        }
+
+        hero.classList.toggle("is-entered", heroState.phase !== HERO_PHASES.IDLE);
+        hero.classList.toggle("is-morph-complete", heroState.phase !== HERO_PHASES.IDLE && heroState.phase !== HERO_PHASES.ENTERING);
+        hero.classList.toggle("is-story-scrubbing", heroState.phase === HERO_PHASES.SCRUBBING);
+        hero.classList.toggle("is-story-complete", heroState.phase === HERO_PHASES.COMPLETE);
+        hero.classList.toggle("is-comma-phase", heroState.progress >= 0.94);
+    }
+
+    function setHeroPhase(phase) {
+        heroState.phase = phase;
+        syncHeroPhaseClasses();
+    }
+
+    function resetHeroFlowState() {
+        heroState.progress = 0;
+        heroState.isStoryUnlocked = false;
+        heroState.isAwaitingAutoScroll = false;
+        clearHeroMorphTimer();
+        clearHeroStoryUnlockTimer();
+        clearHeroStoryCompletionTimer();
+
+        if (hero) {
+            hero.style.setProperty("--hero-story-progress", "0.0000");
+            hero.style.setProperty("--hero-side-pull", "0.0000");
+            hero.style.setProperty("--hero-side-scale", "1.0000");
+        }
+
+        setHeroPhase(HERO_PHASES.IDLE);
+    }
+
+    function isHeroScrollLocked() {
+        if (isMobileHeroMode()) {
+            return false;
+        }
+
+        return !!(hero &&
+            hasEntered &&
+            heroState.phase !== HERO_PHASES.IDLE &&
+            window.scrollY <= 6 &&
+            (!heroState.isStoryUnlocked || heroState.isAwaitingAutoScroll));
+    }
+
+    function setHeroStoryProgress(progress) {
+        if (!hero) {
+            return;
+        }
+
+        heroState.progress = Math.max(0, Math.min(progress, 1));
+
+        if (isMobileHeroMode()) {
+            hero.style.setProperty("--hero-story-progress", "0.0000");
+            hero.style.setProperty("--hero-side-pull", "0.0000");
+            hero.style.setProperty("--hero-side-scale", "1.0000");
+            setHeroPhase(HERO_PHASES.MORPHED);
+            clearHeroStoryCompletionTimer();
+            return;
+        }
+
+        const basePull = heroState.progress;
+        const magneticOvershoot = heroState.progress >= 0.64
+            ? easeOutBack((heroState.progress - 0.5) / 0.5, 2.8)
+            : 0;
+        const magneticPull = Math.min(basePull + (magneticOvershoot * 0.36), 1.38);
+        const magneticScale = 1 - (Math.min(magneticPull, 1.24) * 0.22);
+
+        hero.style.setProperty("--hero-story-progress", heroState.progress.toFixed(4));
+        hero.style.setProperty("--hero-side-pull", magneticPull.toFixed(4));
+        hero.style.setProperty("--hero-side-scale", magneticScale.toFixed(4));
+        setHeroPhase(heroState.progress >= 1 ? HERO_PHASES.COMPLETE : (heroState.progress > 0 ? HERO_PHASES.SCRUBBING : HERO_PHASES.MORPHED));
+
+        if (heroState.progress < 1) {
+            clearHeroStoryCompletionTimer();
+        }
+    }
+
+    function isHeroStoryActive() {
+        if (isMobileHeroMode()) {
+            return false;
+        }
+
+        if (!hero || !hasEntered || heroState.phase === HERO_PHASES.IDLE || heroState.phase === HERO_PHASES.ENTERING || !heroState.isStoryUnlocked) {
+            return false;
+        }
+
+        return window.scrollY <= 6 && getCurrentSection() && getCurrentSection().id === "home";
+    }
+
+    function completeHeroStory() {
+        const projectsSection = document.getElementById("projects");
+
+        if (!projectsSection) {
+            return;
+        }
+
+        clearHeroStoryCompletionTimer();
+        heroState.isAwaitingAutoScroll = true;
+        scheduleHeroTimer("autoScroll", 1300, function () {
+            smoothScrollToSection(projectsSection);
+        });
+    }
+
+    function scrubHeroStory(delta) {
+        if (!isHeroStoryActive()) {
+            return false;
+        }
+
+        const nextProgress = heroState.progress + (delta / 1120);
+
+        if (delta > 0 && heroState.progress < 1) {
+            setHeroStoryProgress(nextProgress);
+
+            if (heroState.progress >= 1) {
+                completeHeroStory();
+            }
+
+            return true;
+        }
+
+        if (delta < 0 && heroState.progress > 0) {
+            setHeroStoryProgress(nextProgress);
+            return true;
+        }
+
+        return false;
     }
 
     function isAnyNavVisible() {
@@ -713,6 +932,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
             section.style.setProperty("--section-separate", String(progress));
         });
+
+        const drawingsSection = document.getElementById("drawings");
+
+        if (drawingsSection) {
+            drawingsSection.classList.toggle("is-active", isSectionInViewport(drawingsSection));
+        }
     }
 
     function requestSectionStackMotion() {
@@ -746,71 +971,95 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         const rect = section.getBoundingClientRect();
-        return rect.top < window.innerHeight && rect.bottom > 0;
+        const entryThreshold = window.innerHeight * 0.94;
+        return rect.top < entryThreshold && rect.bottom > 0;
     }
 
     function unlockPage(name) {
         hasEntered = true;
         html.classList.remove("is-locked");
         body.classList.remove("is-locked");
+        resetHeroFlowState();
         updateFloatingNavState();
     }
 
-    if (title && !title.hasAttribute("data-static-title")) {
-        setAnimatedText(title, title.textContent, 42);
-    }
     setupDrawingsTitleAnimation();
+    setupSubtitleWaveAnimation();
     updateButtonState();
     updateSubtitle();
     preloadProjectDetailImages();
     buildDrawingsLoop();
     updateDrawingsCarousel();
+    requestDrawingsStackMotion();
+    window.setTimeout(function () {
+        if (heroContent) {
+            heroContent.classList.add("is-intro-ready");
+        }
+
+        if (subtitle) {
+            subtitle.classList.remove("is-waving");
+            void subtitle.offsetWidth;
+            subtitle.classList.add("is-waving");
+        }
+    }, heroIntroDelay);
+    window.setTimeout(markDescriptionRevealComplete, descriptionRevealDelay + descriptionRevealDuration + 2000);
 
     if (nameInput) {
         nameInput.addEventListener("input", function () {
             updateButtonState();
             updateSubtitle();
         });
-        nameInput.addEventListener("keyup", updateSubtitle);
-    }
-
-    if (drawingsPrev) {
-        drawingsPrev.addEventListener("click", function () {
-            shiftDrawingsCarousel(-1);
-        });
-    }
-
-    if (drawingsNext) {
-        drawingsNext.addEventListener("click", function () {
-            shiftDrawingsCarousel(1);
-        });
-    }
-
-    if (drawingsTrack) {
-        drawingsTrack.addEventListener("transitionend", function (event) {
-            if (event.propertyName === "transform") {
-                normalizeDrawingsLoopPosition();
-            }
-        });
     }
 
     if (enterForm) {
         enterForm.addEventListener("submit", function (event) {
             event.preventDefault();
-            const enteredName = nameInput ? nameInput.value.trim() : "";
+            const enteredName = nameInput ? formatDisplayName(nameInput.value).trim() : "";
+
+            if (nameInput) {
+                nameInput.value = enteredName;
+            }
 
             if (enteredName === "") {
                 updateButtonState();
                 return;
             }
 
-            setStaticText(subtitle, "welcome, " + enteredName);
-            unlockPage(enteredName);
-            const projectsSection = document.getElementById("projects");
-
-            if (projectsSection) {
-                smoothScrollToSection(projectsSection);
+            if (!isDescriptionRevealComplete) {
+                return;
             }
+
+            if (heroEnteredName) {
+                heroEnteredName.textContent = enteredName;
+            }
+            if (heroSentenceName) {
+                heroSentenceName.textContent = enteredName;
+            }
+            unlockPage(enteredName);
+
+            if (isMobileHeroMode()) {
+                setHeroPhase(HERO_PHASES.MORPHED);
+                heroState.isStoryUnlocked = true;
+                heroState.isAwaitingAutoScroll = true;
+                scheduleHeroTimer("autoScroll", 900, function () {
+                    const projectsSection = document.getElementById("projects");
+
+                    if (projectsSection) {
+                        smoothScrollToSection(projectsSection);
+                    }
+                });
+                return;
+            }
+
+            setHeroPhase(HERO_PHASES.ENTERING);
+
+            scheduleHeroTimer("morph", 2140, function () {
+                setHeroPhase(HERO_PHASES.MORPHED);
+
+                scheduleHeroTimer("unlock", 1100, function () {
+                    heroState.isStoryUnlocked = true;
+                });
+            });
         });
     }
 
@@ -1063,12 +1312,52 @@ document.addEventListener("DOMContentLoaded", function () {
     window.addEventListener("scroll", updateSectionReturnVisibility, { passive: true });
     window.addEventListener("scroll", function () {
         updateFloatingNavState();
+        requestDrawingsStackMotion();
         if (isPointerOverFloatingNav) {
             wakeFloatingNav();
         }
     }, { passive: true });
-    window.addEventListener("wheel", function () {
+    window.addEventListener("wheel", function (event) {
+        if (isHeroScrollLocked()) {
+            event.preventDefault();
+            return;
+        }
+
+        if (scrubHeroStory(event.deltaY)) {
+            event.preventDefault();
+            return;
+        }
+
         wakeFloatingNav();
+    }, { passive: false });
+    window.addEventListener("touchstart", function (event) {
+        if (!isHeroStoryActive() || !event.touches.length) {
+            heroTouchStartY = null;
+            return;
+        }
+
+        heroTouchStartY = event.touches[0].clientY;
+    }, { passive: true });
+    window.addEventListener("touchmove", function (event) {
+        if (isHeroScrollLocked()) {
+            event.preventDefault();
+            return;
+        }
+
+        if (heroTouchStartY === null || !event.touches.length) {
+            return;
+        }
+
+        const currentY = event.touches[0].clientY;
+        const deltaY = heroTouchStartY - currentY;
+
+        if (scrubHeroStory(deltaY)) {
+            event.preventDefault();
+            heroTouchStartY = currentY;
+        }
+    }, { passive: false });
+    window.addEventListener("touchend", function () {
+        heroTouchStartY = null;
     }, { passive: true });
     window.addEventListener("scroll", requestSectionStackMotion, { passive: true });
     window.addEventListener("resize", updateSectionReturnVisibility);
@@ -1078,6 +1367,7 @@ document.addEventListener("DOMContentLoaded", function () {
     window.addEventListener("resize", function () {
         buildDrawingsLoop();
         updateDrawingsCarousel();
+        requestDrawingsStackMotion();
         updateSectionStackMotion();
 
         if (projectDetailShell && projectDetailShell.classList.contains("is-gallery-mode")) {
