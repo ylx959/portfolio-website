@@ -1799,16 +1799,14 @@ input {
 
 .about-support-link-standalone {
     margin-top: 10px;
-    background:
-        linear-gradient(180deg, rgba(54, 50, 46, 0.52), rgba(30, 27, 25, 0.36)),
-        rgba(22, 20, 18, 0.28);
+    background: rgba(24, 21, 19, 0.3);
     color: #f6f3ee;
-    border: 1px solid rgba(255, 255, 255, 0.16);
+    border: 1px solid rgba(255, 255, 255, 0.18);
     box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.18),
-        0 10px 24px rgba(12, 10, 9, 0.11);
-    backdrop-filter: blur(20px) saturate(135%);
-    -webkit-backdrop-filter: blur(20px) saturate(135%);
+        inset 0 1px 0 rgba(255, 255, 255, 0.2),
+        0 8px 20px rgba(12, 10, 9, 0.08);
+    backdrop-filter: blur(22px) saturate(138%);
+    -webkit-backdrop-filter: blur(22px) saturate(138%);
     transition:
         background-color 0.28s ease,
         opacity 0.28s ease,
@@ -1827,14 +1825,12 @@ input {
 
 .about-support-link-standalone:hover,
 .about-support-link-standalone:focus-visible {
-    background:
-        linear-gradient(180deg, rgba(64, 60, 55, 0.58), rgba(37, 33, 30, 0.42)),
-        rgba(28, 25, 23, 0.34);
+    background: rgba(30, 27, 25, 0.36);
     color: #ffffff;
     transform: translateY(-1px);
     box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.22),
-        0 12px 26px rgba(10, 9, 8, 0.14);
+        inset 0 1px 0 rgba(255, 255, 255, 0.24),
+        0 10px 22px rgba(10, 9, 8, 0.1);
 }
 
 .about-support-link-note {
@@ -1845,15 +1841,13 @@ input {
     width: min(320px, calc(100vw - 80px));
     padding: 12px 14px;
     border-radius: 14px;
-    background:
-        linear-gradient(180deg, rgba(50, 45, 42, 0.56), rgba(29, 25, 23, 0.42)),
-        rgba(21, 19, 17, 0.32);
-    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: rgba(24, 21, 19, 0.28);
+    border: 1px solid rgba(255, 255, 255, 0.16);
     box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.18),
-        0 12px 22px rgba(10, 9, 8, 0.14);
-    backdrop-filter: blur(18px) saturate(132%);
-    -webkit-backdrop-filter: blur(18px) saturate(132%);
+        inset 0 1px 0 rgba(255, 255, 255, 0.2),
+        0 10px 18px rgba(10, 9, 8, 0.1);
+    backdrop-filter: blur(20px) saturate(136%);
+    -webkit-backdrop-filter: blur(20px) saturate(136%);
     opacity: 0;
     pointer-events: none;
     transform: translateY(-8px);
