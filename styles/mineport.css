@@ -11,6 +11,12 @@
     --project-edge-inset: calc((100% / var(--project-column-count)) * ((1 - var(--project-card-scale)) / 2));
     --stack-section-overlap: 34vh;
     --contact-section-overlap: 18vh;
+    --filter-panel-open-duration: 0.82s;
+    --filter-panel-close-duration: 0.54s;
+    --filter-option-pop-duration: 0.74s;
+    --filter-option-fade-duration: 0.42s;
+    --filter-option-open-stagger: 0.09s;
+    --filter-option-close-stagger: 0.07s;
 }
 
 html {
@@ -121,7 +127,7 @@ input {
     overflow: hidden;
     background:
         linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.35)),
-        url("main.png") center/cover no-repeat;
+        url("../assets/images/main/main.png") center/cover no-repeat;
     transition:
         filter 1.4s cubic-bezier(0.22, 1, 0.36, 1),
         transform 1.4s cubic-bezier(0.22, 1, 0.36, 1),
@@ -151,7 +157,7 @@ input {
     border-radius: 8px;
     background:
         linear-gradient(180deg, rgba(19, 17, 16, 0.08), rgba(19, 17, 16, 0.2)),
-        url("main.png") center/cover no-repeat;
+        url("../assets/images/main/main.png") center/cover no-repeat;
     box-shadow:
         inset 0 1px 0 rgba(255, 255, 255, 0.16),
         0 24px 60px rgba(16, 14, 13, 0.18);
@@ -874,21 +880,38 @@ input {
     margin-left: var(--filter-panel-offset, 0px);
     overflow: hidden;
     opacity: 0;
-    transform: translateY(-12px);
-    will-change: transform, opacity;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(10px);
+    transform-origin: top center;
+    clip-path: inset(0 0 100% 0);
+    will-change: transform, opacity, clip-path;
     transition:
-        max-height 0.52s cubic-bezier(0.22, 1, 0.36, 1),
-        opacity 0.34s ease,
-        transform 0.52s cubic-bezier(0.22, 1, 0.36, 1),
-        margin-top 0.52s cubic-bezier(0.22, 1, 0.36, 1),
-        margin-left 0.28s ease;
+        max-height var(--filter-panel-close-duration) cubic-bezier(0.4, 0, 1, 1),
+        opacity 0.3s ease,
+        transform var(--filter-panel-close-duration) cubic-bezier(0.4, 0, 1, 1),
+        margin-top var(--filter-panel-close-duration) cubic-bezier(0.4, 0, 1, 1),
+        margin-left 0.42s ease,
+        clip-path var(--filter-panel-close-duration) cubic-bezier(0.4, 0, 1, 1),
+        visibility 0s linear var(--filter-panel-close-duration);
 }
 
 .time-filter-panel.is-open {
     max-height: 120px;
     margin-top: 16px;
     opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
     transform: translateY(0);
+    clip-path: inset(0 0 0 0);
+    transition:
+        max-height var(--filter-panel-open-duration) cubic-bezier(0.22, 1, 0.36, 1),
+        opacity 0.56s ease,
+        transform var(--filter-panel-open-duration) cubic-bezier(0.22, 1, 0.36, 1),
+        margin-top var(--filter-panel-open-duration) cubic-bezier(0.22, 1, 0.36, 1),
+        margin-left 0.42s ease,
+        clip-path var(--filter-panel-open-duration) cubic-bezier(0.22, 1, 0.36, 1),
+        visibility 0s linear 0s;
 }
 
 .typology-filter-panel {
@@ -900,6 +923,7 @@ input {
 }
 
 .time-filter-option {
+    --filter-option-index: 0;
     border: none;
     width: 112px;
     min-height: 38px;
@@ -911,7 +935,54 @@ input {
     letter-spacing: 0.14em;
     text-transform: uppercase;
     cursor: pointer;
-    transition: background-color 0.28s ease, color 0.28s ease, box-shadow 0.28s ease;
+    opacity: 0;
+    transform: translateX(-42px) scale(0.72);
+    transition-delay: 0s;
+    transition:
+        opacity 0.28s ease,
+        transform 0.64s cubic-bezier(0.32, 0, 0.18, 1),
+        background-color 0.28s ease,
+        color 0.28s ease,
+        box-shadow 0.28s ease;
+}
+
+.time-filter-panel.is-open .time-filter-option {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+    transition:
+        opacity var(--filter-option-fade-duration) ease,
+        transform var(--filter-option-pop-duration) cubic-bezier(0.18, 1.18, 0.32, 1),
+        background-color 0.28s ease,
+        color 0.28s ease,
+        box-shadow 0.28s ease;
+}
+
+.time-filter-panel.is-open .time-filter-option {
+    transition-delay: calc(var(--filter-option-index) * var(--filter-option-open-stagger));
+}
+
+.time-filter-panel:not(.is-open) .time-filter-option {
+    transition-delay: calc((4 - var(--filter-option-index)) * var(--filter-option-close-stagger));
+}
+
+.time-filter-panel .time-filter-option:nth-child(1) {
+    --filter-option-index: 0;
+}
+
+.time-filter-panel .time-filter-option:nth-child(2) {
+    --filter-option-index: 1;
+}
+
+.time-filter-panel .time-filter-option:nth-child(3) {
+    --filter-option-index: 2;
+}
+
+.time-filter-panel .time-filter-option:nth-child(4) {
+    --filter-option-index: 3;
+}
+
+.time-filter-panel .time-filter-option:nth-child(5) {
+    --filter-option-index: 4;
 }
 
 .time-filter-option:hover,
@@ -925,6 +996,15 @@ input {
     background: #171514;
     color: #ffffff;
     box-shadow: 0 10px 20px rgba(23, 21, 20, 0.08);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .time-filter-panel,
+    .time-filter-panel.is-open,
+    .time-filter-option {
+        transition-duration: 0.01ms !important;
+        transition-delay: 0s !important;
+    }
 }
 
 .filter-chip {
@@ -1140,32 +1220,32 @@ input {
 
 .image-grid-01,
 .image-grid-07 {
-    background-image: url("project1.jpg");
+    background-image: url("../assets/images/projects/project1.jpg");
 }
 
 .image-grid-02,
 .image-grid-08 {
-    background-image: url("project2.jpg");
+    background-image: url("../assets/images/projects/project2.jpg");
 }
 
 .image-grid-03,
 .image-grid-09 {
-    background-image: url("project3.jpg");
+    background-image: url("../assets/images/projects/project3.jpg");
 }
 
 .image-grid-04,
 .image-grid-10 {
-    background-image: url("project4.jpg");
+    background-image: url("../assets/images/projects/project4.jpg");
 }
 
 .image-grid-05,
 .image-grid-11 {
-    background-image: url("project5.jpg");
+    background-image: url("../assets/images/projects/project5.jpg");
 }
 
 .image-grid-06,
 .image-grid-12 {
-    background-image: url("project6.jpg");
+    background-image: url("../assets/images/projects/project6.jpg");
 }
 
 .project-card:hover .project-image {

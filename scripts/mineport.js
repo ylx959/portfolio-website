@@ -1224,6 +1224,31 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
+    function setActiveTimeFilter(value) {
+        activeYearFilter = value || "all";
+
+        timeFilterOptions.forEach(function (item) {
+            const itemValue = item.dataset.yearFilter || "all";
+            item.classList.toggle("is-active", itemValue === activeYearFilter);
+        });
+    }
+
+    function setActiveTypologyFilter(value) {
+        activeTypologyFilter = value || "all";
+
+        typologyFilterOptions.forEach(function (item) {
+            const itemValue = item.dataset.typologyFilter || "all";
+            item.classList.toggle("is-active", itemValue === activeTypologyFilter);
+        });
+    }
+
+    function resetSecondaryProjectFilters() {
+        setActiveTimeFilter("all");
+        setActiveTypologyFilter("all");
+        setTimeFilterPanelOpen(false);
+        setTypologyFilterPanelOpen(false);
+    }
+
     projectCards.forEach(function (card, index) {
         const detail = projectDetails[index];
         card.style.setProperty("--card-index", index);
@@ -1294,6 +1319,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
             link.classList.add("is-active");
             activeCategoryFilter = filter;
+
+            if (filter === "all") {
+                resetSecondaryProjectFilters();
+            }
+
             applyProjectFilters();
         });
     });
@@ -1324,13 +1354,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     timeFilterOptions.forEach(function (option) {
         option.addEventListener("click", function () {
-            activeYearFilter = option.dataset.yearFilter || "all";
-
-            timeFilterOptions.forEach(function (item) {
-                item.classList.remove("is-active");
-            });
-
-            option.classList.add("is-active");
+            setActiveTimeFilter(option.dataset.yearFilter || "all");
             applyProjectFilters();
             scheduleTimeFilterAutoClose();
         });
@@ -1338,13 +1362,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     typologyFilterOptions.forEach(function (option) {
         option.addEventListener("click", function () {
-            activeTypologyFilter = option.dataset.typologyFilter || "all";
-
-            typologyFilterOptions.forEach(function (item) {
-                item.classList.remove("is-active");
-            });
-
-            option.classList.add("is-active");
+            setActiveTypologyFilter(option.dataset.typologyFilter || "all");
             applyProjectFilters();
             scheduleTypologyFilterAutoClose();
         });
