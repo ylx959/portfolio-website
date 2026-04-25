@@ -15,10 +15,14 @@ document.addEventListener("DOMContentLoaded", function () {
     const viewToggle = document.getElementById("viewToggle");
     const timeFilterToggle = document.getElementById("timeFilterToggle");
     const timeFilterPanel = document.getElementById("timeFilterPanel");
-    const timeFilterOptions = document.querySelectorAll(".time-filter-option");
     const typologyFilterToggle = document.getElementById("typologyFilterToggle");
     const typologyFilterPanel = document.getElementById("typologyFilterPanel");
-    const typologyFilterOptions = document.querySelectorAll(".typology-filter-option");
+    const timeFilterOptions = timeFilterPanel
+        ? timeFilterPanel.querySelectorAll(".time-filter-option")
+        : [];
+    const typologyFilterOptions = typologyFilterPanel
+        ? typologyFilterPanel.querySelectorAll(".typology-filter-option")
+        : [];
     const projectGrid = document.querySelector(".project-grid");
     const drawingsTrack = document.getElementById("drawingsTrack");
     const projectDetailOverlay = document.getElementById("projectDetailOverlay");
@@ -50,7 +54,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const stackedSections = document.querySelectorAll(".drawings-section, .about-section, .contact-section");
     const categoryLinks = document.querySelectorAll(".category-link");
     const projectCards = document.querySelectorAll(".project-card");
-    const defaultSubtitleText = "welcome to my home page.";
+    const defaultSubtitleText = "welcome to my portfolio.";
     const heroIntroDelay = 2000;
     const descriptionRevealDelay = 2000;
     const descriptionRevealDuration = 4200;
@@ -86,6 +90,8 @@ document.addEventListener("DOMContentLoaded", function () {
     let activeTypologyFilter = "all";
     let timeFilterAutoCloseTimer = null;
     let typologyFilterAutoCloseTimer = null;
+    let timeFilterCloseTimer = null;
+    let typologyFilterCloseTimer = null;
     let pendingFloatingNavSectionId = "";
     let floatingNavIdleTimer = null;
     let isPointerOverFloatingNav = false;
@@ -852,8 +858,8 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        const contactSection = document.getElementById("contact");
-        const shouldShow = !!contactSection && isSectionInViewport(contactSection);
+        const currentSection = getCurrentSection();
+        const shouldShow = !!currentSection && currentSection.id === "contact";
         sectionReturn.classList.toggle("is-visible", shouldShow);
     }
 
@@ -1136,6 +1142,13 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    function clearTimeFilterCloseTimer() {
+        if (timeFilterCloseTimer) {
+            window.clearTimeout(timeFilterCloseTimer);
+            timeFilterCloseTimer = null;
+        }
+    }
+
     function scheduleTimeFilterAutoClose() {
         if (!timeFilterPanel || !timeFilterToggle || !timeFilterPanel.classList.contains("is-open")) {
             return;
@@ -1149,14 +1162,38 @@ document.addEventListener("DOMContentLoaded", function () {
         }, 1500);
     }
 
-    function setTimeFilterPanelOpen(isOpen) {
+    function setTimeFilterPanelOpen(isOpen, options) {
         if (!timeFilterPanel || !timeFilterToggle) {
             return;
         }
 
+        const closeInstantly = !!(options && options.closeInstantly);
         clearTimeFilterAutoCloseTimer();
-        timeFilterPanel.classList.toggle("is-open", isOpen);
-        timeFilterPanel.setAttribute("aria-hidden", String(!isOpen));
+        clearTimeFilterCloseTimer();
+
+        if (isOpen && typologyFilterPanel && typologyFilterPanel.classList.contains("is-open")) {
+            setTypologyFilterPanelOpen(false, { closeInstantly: true });
+        }
+
+        if (isOpen) {
+            timeFilterPanel.classList.remove("is-closing");
+            timeFilterPanel.classList.add("is-open");
+            timeFilterPanel.setAttribute("aria-hidden", "false");
+        } else if (timeFilterPanel.classList.contains("is-open") || timeFilterPanel.classList.contains("is-closing")) {
+            if (closeInstantly) {
+                timeFilterPanel.classList.remove("is-open", "is-closing");
+                timeFilterPanel.setAttribute("aria-hidden", "true");
+            } else {
+            timeFilterPanel.classList.remove("is-open");
+            timeFilterPanel.classList.add("is-closing");
+            timeFilterPanel.setAttribute("aria-hidden", "true");
+            timeFilterCloseTimer = window.setTimeout(function () {
+                timeFilterPanel.classList.remove("is-closing");
+                timeFilterCloseTimer = null;
+            }, 560);
+            }
+        }
+
         timeFilterToggle.setAttribute("aria-expanded", String(isOpen));
 
         if (isOpen) {
@@ -1168,6 +1205,13 @@ document.addEventListener("DOMContentLoaded", function () {
         if (typologyFilterAutoCloseTimer) {
             window.clearTimeout(typologyFilterAutoCloseTimer);
             typologyFilterAutoCloseTimer = null;
+        }
+    }
+
+    function clearTypologyFilterCloseTimer() {
+        if (typologyFilterCloseTimer) {
+            window.clearTimeout(typologyFilterCloseTimer);
+            typologyFilterCloseTimer = null;
         }
     }
 
@@ -1184,14 +1228,38 @@ document.addEventListener("DOMContentLoaded", function () {
         }, 1500);
     }
 
-    function setTypologyFilterPanelOpen(isOpen) {
+    function setTypologyFilterPanelOpen(isOpen, options) {
         if (!typologyFilterPanel || !typologyFilterToggle) {
             return;
         }
 
+        const closeInstantly = !!(options && options.closeInstantly);
         clearTypologyFilterAutoCloseTimer();
-        typologyFilterPanel.classList.toggle("is-open", isOpen);
-        typologyFilterPanel.setAttribute("aria-hidden", String(!isOpen));
+        clearTypologyFilterCloseTimer();
+
+        if (isOpen && timeFilterPanel && timeFilterPanel.classList.contains("is-open")) {
+            setTimeFilterPanelOpen(false, { closeInstantly: true });
+        }
+
+        if (isOpen) {
+            typologyFilterPanel.classList.remove("is-closing");
+            typologyFilterPanel.classList.add("is-open");
+            typologyFilterPanel.setAttribute("aria-hidden", "false");
+        } else if (typologyFilterPanel.classList.contains("is-open") || typologyFilterPanel.classList.contains("is-closing")) {
+            if (closeInstantly) {
+                typologyFilterPanel.classList.remove("is-open", "is-closing");
+                typologyFilterPanel.setAttribute("aria-hidden", "true");
+            } else {
+            typologyFilterPanel.classList.remove("is-open");
+            typologyFilterPanel.classList.add("is-closing");
+            typologyFilterPanel.setAttribute("aria-hidden", "true");
+            typologyFilterCloseTimer = window.setTimeout(function () {
+                typologyFilterPanel.classList.remove("is-closing");
+                typologyFilterCloseTimer = null;
+            }, 560);
+            }
+        }
+
         typologyFilterToggle.setAttribute("aria-expanded", String(isOpen));
 
         if (isOpen) {
@@ -1331,7 +1399,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (timeFilterToggle && timeFilterPanel) {
         timeFilterToggle.addEventListener("click", function () {
             const willOpen = !timeFilterPanel.classList.contains("is-open");
-            setTimeFilterPanelOpen(willOpen);
+            setTimeFilterPanelOpen(willOpen, { closeInstantly: !willOpen });
         });
 
         timeFilterToggle.addEventListener("mouseenter", clearTimeFilterAutoCloseTimer);
@@ -1343,7 +1411,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (typologyFilterToggle && typologyFilterPanel) {
         typologyFilterToggle.addEventListener("click", function () {
             const willOpen = !typologyFilterPanel.classList.contains("is-open");
-            setTypologyFilterPanelOpen(willOpen);
+            setTypologyFilterPanelOpen(willOpen, { closeInstantly: !willOpen });
         });
 
         typologyFilterToggle.addEventListener("mouseenter", clearTypologyFilterAutoCloseTimer);

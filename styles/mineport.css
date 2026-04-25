@@ -11,8 +11,8 @@
     --project-edge-inset: calc((100% / var(--project-column-count)) * ((1 - var(--project-card-scale)) / 2));
     --stack-section-overlap: 34vh;
     --contact-section-overlap: 18vh;
-    --filter-panel-open-duration: 0.82s;
-    --filter-panel-close-duration: 0.54s;
+    --filter-panel-open-duration: 0.42s;
+    --filter-panel-close-duration: 0.3s;
     --filter-option-pop-duration: 0.74s;
     --filter-option-fade-duration: 0.42s;
     --filter-option-open-stagger: 0.09s;
@@ -826,8 +826,10 @@ input {
 }
 
 .project-intro {
+    position: relative;
     width: calc(100% - (var(--project-edge-inset) * 2));
     margin: 300px auto 34px;
+    padding-bottom: 92px;
 }
 
 .project-categories {
@@ -872,62 +874,68 @@ input {
 }
 
 .time-filter-panel {
+    position: absolute;
+    top: calc(100% - 74px);
+    left: 0;
     display: grid;
     grid-template-columns: repeat(5, minmax(112px, 112px));
     gap: 10px;
     max-height: 0;
-    margin-top: 0;
     margin-left: var(--filter-panel-offset, 0px);
     overflow: hidden;
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
-    transform: translateY(10px);
+    transform: translateY(6px);
     transform-origin: top center;
-    clip-path: inset(0 0 100% 0);
-    will-change: transform, opacity, clip-path;
+    will-change: transform, opacity;
     transition:
         max-height var(--filter-panel-close-duration) cubic-bezier(0.4, 0, 1, 1),
-        opacity 0.3s ease,
+        opacity 0.22s ease,
         transform var(--filter-panel-close-duration) cubic-bezier(0.4, 0, 1, 1),
-        margin-top var(--filter-panel-close-duration) cubic-bezier(0.4, 0, 1, 1),
         margin-left 0.42s ease,
-        clip-path var(--filter-panel-close-duration) cubic-bezier(0.4, 0, 1, 1),
-        visibility 0s linear var(--filter-panel-close-duration);
+        visibility 0s linear 0.18s;
+}
+
+.time-filter-panel.is-open,
+.time-filter-panel.is-closing {
+    max-height: 120px;
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
 }
 
 .time-filter-panel.is-open {
-    max-height: 120px;
-    margin-top: 16px;
-    opacity: 1;
-    visibility: visible;
     pointer-events: auto;
-    transform: translateY(0);
-    clip-path: inset(0 0 0 0);
     transition:
         max-height var(--filter-panel-open-duration) cubic-bezier(0.22, 1, 0.36, 1),
-        opacity 0.56s ease,
+        opacity 0.3s ease,
         transform var(--filter-panel-open-duration) cubic-bezier(0.22, 1, 0.36, 1),
-        margin-top var(--filter-panel-open-duration) cubic-bezier(0.22, 1, 0.36, 1),
         margin-left 0.42s ease,
-        clip-path var(--filter-panel-open-duration) cubic-bezier(0.22, 1, 0.36, 1),
         visibility 0s linear 0s;
 }
 
-.typology-filter-panel {
-    margin-top: 8px;
+.time-filter-panel.is-closing {
+    pointer-events: none;
+    transition:
+        max-height 0s linear 0.56s,
+        opacity 0.22s ease,
+        transform 0.22s ease,
+        margin-left 0.42s ease,
+        visibility 0s linear 0.56s;
 }
 
-.typology-filter-panel.is-open {
-    margin-top: 14px;
+.typology-filter-panel {
+    top: calc(100% - 74px);
 }
 
 .time-filter-option {
     --filter-option-index: 0;
     border: none;
-    width: 112px;
+    min-width: 112px;
+    width: max-content;
     min-height: 38px;
-    padding: 9px 14px;
+    padding: 9px 16px;
     border-radius: 999px;
     background: rgba(231, 231, 229, 0.88);
     color: #67625d;
@@ -935,12 +943,12 @@ input {
     letter-spacing: 0.14em;
     text-transform: uppercase;
     cursor: pointer;
+    white-space: nowrap;
     opacity: 0;
-    transform: translateX(-42px) scale(0.72);
-    transition-delay: 0s;
+    transform: scale(0.96);
     transition:
-        opacity 0.28s ease,
-        transform 0.64s cubic-bezier(0.32, 0, 0.18, 1),
+        opacity 0.26s ease,
+        transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
         background-color 0.28s ease,
         color 0.28s ease,
         box-shadow 0.28s ease;
@@ -948,21 +956,27 @@ input {
 
 .time-filter-panel.is-open .time-filter-option {
     opacity: 1;
-    transform: translateX(0) scale(1);
+    transform: scale(1);
     transition:
-        opacity var(--filter-option-fade-duration) ease,
-        transform var(--filter-option-pop-duration) cubic-bezier(0.18, 1.18, 0.32, 1),
+        opacity 0.34s ease,
+        transform 0.42s cubic-bezier(0.18, 1, 0.36, 1),
         background-color 0.28s ease,
         color 0.28s ease,
         box-shadow 0.28s ease;
 }
 
 .time-filter-panel.is-open .time-filter-option {
-    transition-delay: calc(var(--filter-option-index) * var(--filter-option-open-stagger));
+    transition-delay: calc(var(--filter-option-index) * 88ms);
 }
 
 .time-filter-panel:not(.is-open) .time-filter-option {
-    transition-delay: calc((4 - var(--filter-option-index)) * var(--filter-option-close-stagger));
+    transition-delay: calc((4 - var(--filter-option-index)) * 96ms);
+}
+
+.time-filter-panel.is-closing .time-filter-option {
+    opacity: 0;
+    transform: scale(0.96);
+    transition-delay: calc((4 - var(--filter-option-index)) * 96ms);
 }
 
 .time-filter-panel .time-filter-option:nth-child(1) {
@@ -1991,35 +2005,38 @@ input {
 
 .about-support-link-note {
     position: absolute;
-    top: calc(100% + 10px);
+    top: calc(100% + 8px);
     left: 0;
-    display: block;
-    width: min(320px, calc(100vw - 80px));
-    padding: 12px 14px;
+    display: inline-flex;
+    align-items: center;
+    width: max-content;
+    max-width: min(260px, calc(100vw - 80px));
+    padding: 9px 12px;
     border-radius: 14px;
-    background: rgba(24, 21, 19, 0.28);
-    border: 1px solid rgba(255, 255, 255, 0.16);
+    background: rgba(46, 41, 38, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.22);
     box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.2),
-        0 10px 18px rgba(10, 9, 8, 0.1);
-    backdrop-filter: blur(20px) saturate(136%);
-    -webkit-backdrop-filter: blur(20px) saturate(136%);
+        inset 0 1px 0 rgba(255, 255, 255, 0.22),
+        0 8px 18px rgba(10, 9, 8, 0.08);
+    backdrop-filter: blur(16px) saturate(128%);
+    -webkit-backdrop-filter: blur(16px) saturate(128%);
     opacity: 0;
     pointer-events: none;
-    transform: translateY(-8px);
-    font-size: 0.58rem;
-    letter-spacing: 0.04em;
+    transform: translateY(-6px) scale(0.985);
+    font-size: 0.6rem;
+    letter-spacing: 0.03em;
     text-transform: none;
-    line-height: 1.55;
-    color: rgba(246, 243, 238, 0.9);
+    line-height: 1.35;
+    white-space: nowrap;
+    color: rgba(246, 243, 238, 0.82);
     transition:
-        opacity 0.24s ease,
-        transform 0.38s cubic-bezier(0.22, 1, 0.36, 1);
+        opacity 0.3s ease,
+        transform 0.42s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .about-support-link-standalone:hover .about-support-link-note,
 .about-support-link-standalone:focus-visible .about-support-link-note {
-    opacity: 0.88;
+    opacity: 1;
     transform: translateY(0);
 }
 
@@ -2064,12 +2081,15 @@ input {
     display: block;
     width: clamp(120px, 14vw, 190px);
     height: auto;
+    margin-top: 42px;
 }
 
 .contact-main {
     display: grid;
-    gap: 44px;
-    max-width: 680px;
+    gap: 32px;
+    max-width: 560px;
+    align-content: start;
+    padding-top: 42px;
 }
 
 .contact-group {
@@ -2867,6 +2887,14 @@ input {
 
     .contact-layout {
         margin-bottom: 64px;
+    }
+
+    .contact-mark {
+        margin-top: 0;
+    }
+
+    .contact-main {
+        padding-top: 0;
     }
 
     .contact-signup {
