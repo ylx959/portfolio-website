@@ -199,6 +199,10 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
+        if (isMobileHeroMode() && isGalleryMode) {
+            return;
+        }
+
         projectDetailShell.classList.toggle("is-gallery-mode", isGalleryMode);
         projectDetailGalleryMode.setAttribute("aria-hidden", String(!isGalleryMode));
         projectDetailGalleryToggle.classList.toggle("is-active", isGalleryMode);
@@ -446,6 +450,9 @@ document.addEventListener("DOMContentLoaded", function () {
         projectDetailOverlay.classList.add("is-visible");
         projectDetailOverlay.setAttribute("aria-hidden", "false");
         body.classList.add("is-project-detail-open");
+        if (projectDetailShell) {
+            projectDetailShell.scrollTop = 0;
+        }
         projectDetailGallery.scrollTop = 0;
 
         window.requestAnimationFrame(function () {
@@ -1499,6 +1506,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (projectDetailGalleryToggle) {
         projectDetailGalleryToggle.addEventListener("click", function () {
+            if (isMobileHeroMode()) {
+                setProjectGalleryMode(false);
+                return;
+            }
+
             const isGalleryMode = projectDetailShell ? !projectDetailShell.classList.contains("is-gallery-mode") : false;
             triggerOneShotButtonScroll(projectDetailGalleryToggle, 500);
             setProjectGalleryMode(isGalleryMode);
@@ -1661,7 +1673,11 @@ document.addEventListener("DOMContentLoaded", function () {
         syncFilterPanelOffsets();
 
         if (projectDetailShell && projectDetailShell.classList.contains("is-gallery-mode")) {
-            renderProjectGalleryMode();
+            if (isMobileHeroMode()) {
+                setProjectGalleryMode(false);
+            } else {
+                renderProjectGalleryMode();
+            }
         }
     });
     updateSectionReturnVisibility();

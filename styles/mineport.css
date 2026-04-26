@@ -1232,34 +1232,64 @@ input {
     transition: opacity 0.95s ease, transform 0.95s ease;
 }
 
-.image-grid-01,
+.image-grid-01 {
+    background-image: url("../assets/images/projects/project1/card/project1.jpg");
+}
+
+.image-grid-02 {
+    background-image: url("../assets/images/projects/project2/card/project2.jpg");
+}
+
+.image-grid-03 {
+    background-image: url("../assets/images/projects/project3/card/project3.jpg");
+}
+
 .image-grid-07 {
-    background-image: url("../assets/images/projects/project1.jpg");
+    background-image: url("../assets/images/projects/project7/card/project7.jpg");
 }
 
-.image-grid-02,
+.project-image::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+        radial-gradient(circle at 12% 18%, rgba(255, 255, 255, 0.38) 0 0.7px, transparent 1.5px),
+        radial-gradient(circle at 44% 28%, rgba(255, 255, 255, 0.24) 0 0.7px, transparent 1.4px),
+        radial-gradient(circle at 78% 64%, rgba(255, 255, 255, 0.28) 0 0.7px, transparent 1.5px),
+        radial-gradient(circle at 26% 82%, rgba(255, 255, 255, 0.24) 0 0.7px, transparent 1.4px),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(238, 232, 220, 0.05));
+    background-size: 26px 26px, 34px 34px, 32px 32px, 40px 40px, 100% 100%;
+    mix-blend-mode: screen;
+    opacity: 0.32;
+}
+
+.image-grid-08::before {
+    content: none;
+}
+
 .image-grid-08 {
-    background-image: url("../assets/images/projects/project2.jpg");
+    background-image: url("../assets/images/projects/project8/card/project8.jpg");
+    background-position: center 78%;
 }
 
-.image-grid-03,
 .image-grid-09 {
-    background-image: url("../assets/images/projects/project3.jpg");
+    background-image: url("../assets/images/projects/project9/card/project9.jpg");
 }
 
 .image-grid-04,
 .image-grid-10 {
-    background-image: url("../assets/images/projects/project4.jpg");
+    background-image: url("../assets/images/projects/project4/card/project4.jpg");
 }
 
 .image-grid-05,
 .image-grid-11 {
-    background-image: url("../assets/images/projects/project5.jpg");
+    background-image: url("../assets/images/projects/project5/card/project5.jpg");
 }
 
 .image-grid-06,
 .image-grid-12 {
-    background-image: url("../assets/images/projects/project6.jpg");
+    background-image: url("../assets/images/projects/project6/card/project6.jpg");
 }
 
 .project-card:hover .project-image {
@@ -2543,6 +2573,8 @@ input {
 .image-grid-11,
 .image-grid-12 { background-position: center center; }
 
+.image-grid-08 { background-position: center 78%; }
+
 .anchor-placeholder {
     height: 1px;
 }
@@ -2689,17 +2721,17 @@ input {
     }
 
     .hero-visual-side-left {
-        right: 50%;
-        left: 0;
+        right: calc(50% + 12px);
+        left: 8px;
         justify-content: flex-end;
-        transform: translate(-12px, -50%);
+        transform: translateY(-50%);
     }
 
     .hero-visual-side-right {
-        left: 50%;
-        right: 0;
+        left: calc(50% + 12px);
+        right: 8px;
         justify-content: flex-start;
-        transform: translate(12px, -50%);
+        transform: translateY(-50%);
     }
 
     .hero-sentence,
@@ -2735,8 +2767,52 @@ input {
         letter-spacing: 0.07em;
     }
 
+    .form {
+        gap: 8px;
+    }
+
+    .input {
+        width: min(190px, 58vw);
+        padding: 8px 14px;
+        font-size: 13px;
+    }
+
+    .btn {
+        padding: 8px 18px;
+        font-size: 11px;
+        letter-spacing: 0.18em;
+    }
+
     .project-showcase {
         padding: 18px 16px 32px;
+    }
+
+    .project-intro {
+        padding-bottom: 150px;
+    }
+
+    .time-filter-panel,
+    .typology-filter-panel {
+        top: calc(100% - 138px);
+        left: 0;
+        right: 0;
+        width: 100%;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+        margin-left: 0;
+    }
+
+    .time-filter-panel.is-open,
+    .time-filter-panel.is-closing {
+        max-height: 150px;
+    }
+
+    .time-filter-option {
+        width: 100%;
+        min-width: 0;
+        min-height: 34px;
+        padding: 8px 12px;
+        font-size: 0.62rem;
     }
 
     .section-floating-nav {
@@ -2762,9 +2838,9 @@ input {
     }
 
     .section-floating-link {
-        padding: 7px 8px;
-        font-size: 9px;
-        letter-spacing: 0.08em;
+        padding: 7px 6px;
+        font-size: 8px;
+        letter-spacing: 0.06em;
     }
 
     .section-floating-logo {

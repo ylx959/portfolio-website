@@ -597,17 +597,33 @@ body.is-project-detail-open .project-showcase {
     }
 
     .project-detail-shell {
+        display: block;
         grid-template-columns: 1fr;
         height: min(92vh, 960px);
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
     }
 
     .project-detail-panel {
+        display: block;
         padding-left: 0;
+        overflow: visible;
+    }
+
+    .project-detail-badge {
+        display: none;
     }
 
     .project-detail-copy {
-        max-height: 48vh;
+        max-height: none;
+        overflow: visible;
         padding-right: 10px;
+    }
+
+    .project-detail-gallery {
+        margin-top: 24px;
+        overflow: visible;
+        padding-right: 0;
     }
 
     .project-detail-shell.is-gallery-mode .project-detail-gallery-mode {
