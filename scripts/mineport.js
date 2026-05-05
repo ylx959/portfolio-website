@@ -122,6 +122,10 @@ document.addEventListener("DOMContentLoaded", function () {
             return "";
         }
 
+        if (detail.fullDescription) {
+            return detail.fullDescription;
+        }
+
         return detail.title + " is developed as a long-form " + detail.category.toLowerCase() + " proposal rooted in atmosphere, spatial sequence, and material restraint. Set in " + detail.location + ", the work begins with a close reading of movement, pause, and the emotional rhythm produced between enclosure and openness. Rather than treating form as a singular object, the project is organized as a series of linked moments, where threshold, proportion, light, and visual compression gradually shape the experience of the whole. The intention is to create a setting that feels measured and quiet, but still carries strong emotional depth through contrast, texture, and pacing. " +
             "Across the proposal, surfaces are edited carefully so that each junction, opening, and transition contributes to a more continuous architectural narrative. Light is not only used to illuminate the space, but also to structure attention, soften boundaries, and clarify the hierarchy between public and intimate zones. Material choices are imagined as part of the same composition, allowing weight, reflection, shadow, and tactile presence to work together instead of competing for emphasis. " +
             "The result is a project that values calm over spectacle and precision over excess. It aims to feel immersive without becoming heavy, and expressive without losing discipline. In this way, " + detail.title + " becomes less a static formal statement and more a carefully paced environment, where each movement reveals another layer of spatial character, visual stillness, and lived atmosphere over time.";
@@ -261,7 +265,7 @@ document.addEventListener("DOMContentLoaded", function () {
         setButtonText(projectDetailGalleryToggle, isGalleryMode ? "Detail" : "Gallery", ".project-detail-badge-text", "project-detail-badge-text");
 
         if (isGalleryMode) {
-            renderProjectGalleryMode();
+            scheduleProjectGalleryModeRender();
         }
     }
 
@@ -283,6 +287,20 @@ document.addEventListener("DOMContentLoaded", function () {
         if (projectDetailStageTrack) {
             projectDetailStageTrack.querySelectorAll(".project-detail-gallery-stage-image").forEach(applyProjectGalleryStageImageRatio);
         }
+    }
+
+    function scheduleProjectGalleryModeRender() {
+        renderProjectGalleryMode();
+
+        window.requestAnimationFrame(function () {
+            renderProjectGalleryMode();
+
+            window.requestAnimationFrame(function () {
+                renderProjectGalleryMode();
+            });
+        });
+
+        window.setTimeout(renderProjectGalleryMode, 360);
     }
 
     function blockProjectDetailImageNavigation(event) {
