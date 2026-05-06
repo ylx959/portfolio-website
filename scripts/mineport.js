@@ -495,6 +495,26 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    function resetMobileHeroViewport() {
+        if (!isMobileHeroMode()) {
+            return;
+        }
+
+        if (document.activeElement && typeof document.activeElement.blur === "function") {
+            document.activeElement.blur();
+        }
+
+        [0, 90, 260].forEach(function (delay) {
+            window.setTimeout(function () {
+                if (hero) {
+                    hero.scrollIntoView({ block: "start", inline: "nearest" });
+                }
+
+                window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+            }, delay);
+        });
+    }
+
     function setStaticText(element, text) {
         if (!element) {
             return;
@@ -643,8 +663,8 @@ document.addEventListener("DOMContentLoaded", function () {
             body.classList.remove("is-project-detail-open");
             drawingsDetailCloseTimer = null;
 
-            if (lastFocusedDrawingCard) {
-                lastFocusedDrawingCard.focus();
+            if (lastFocusedDrawingCard && window.innerWidth > 768) {
+                lastFocusedDrawingCard.focus({ preventScroll: true });
             }
         }, 320);
     }
@@ -1146,6 +1166,8 @@ document.addEventListener("DOMContentLoaded", function () {
             if (nameInput) {
                 nameInput.value = enteredName;
             }
+
+            resetMobileHeroViewport();
 
             if (enteredName === "") {
                 updateButtonState();

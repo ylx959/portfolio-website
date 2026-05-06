@@ -2774,7 +2774,7 @@ input {
     .input {
         width: min(190px, 58vw);
         padding: 8px 14px;
-        font-size: 13px;
+        font-size: 16px;
     }
 
     .btn {
@@ -2915,7 +2915,14 @@ input {
     .drawings-track:focus-within .drawings-card,
     .drawings-card:hover,
     .drawings-card:focus-within {
-        width: 100%;
+        width: calc(100% - 12px);
+        transform: none;
+    }
+
+    .drawings-card:hover .drawings-image,
+    .drawings-card:focus-within .drawings-image {
+        transform: scale(1.03);
+        filter: none;
     }
 
     .about-section {
