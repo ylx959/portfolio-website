@@ -171,7 +171,12 @@ document.addEventListener("DOMContentLoaded", function () {
             ? [currentProjectGalleryImages[currentProjectGalleryImages.length - 1]].concat(currentProjectGalleryImages, currentProjectGalleryImages[0])
             : currentProjectGalleryImages.slice();
 
-        if (projectDetailStageTrack.children.length !== stageImages.length) {
+        const existingStageImages = Array.from(projectDetailStageTrack.querySelectorAll(".project-detail-gallery-stage-image"));
+        const stageImagesChanged = existingStageImages.length !== stageImages.length || existingStageImages.some(function (image, imageIndex) {
+            return image.getAttribute("src") !== stageImages[imageIndex];
+        });
+
+        if (stageImagesChanged) {
             projectDetailStageTrack.innerHTML = stageImages.map(function (imageSrc, imageIndex) {
                 const isClone = currentProjectGalleryImages.length > 1 && (imageIndex === 0 || imageIndex === stageImages.length - 1);
                 const realImageIndex = currentProjectGalleryImages.length > 1
@@ -179,7 +184,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     : imageIndex;
                 const altText = isClone ? "" : (projectDetailTitle ? projectDetailTitle.textContent + " gallery image " + (realImageIndex + 1) : "");
                 const hiddenAttribute = isClone ? ' aria-hidden="true"' : "";
-                return '<img class="project-detail-gallery-stage-image" src="' + imageSrc + '" alt="' + altText + '" loading="eager" decoding="async" draggable="false"' + hiddenAttribute + '>';
+                return '<div class="project-detail-gallery-stage-slide"' + hiddenAttribute + '><img class="project-detail-gallery-stage-image" src="' + imageSrc + '" alt="' + altText + '" loading="eager" decoding="async" draggable="false"></div>';
             }).join("");
             projectDetailStageTrack.querySelectorAll(".project-detail-gallery-stage-image").forEach(function (image) {
                 image.addEventListener("click", blockProjectDetailImageNavigation);
@@ -205,8 +210,9 @@ document.addEventListener("DOMContentLoaded", function () {
         images.forEach(applyProjectGalleryStageImageRatio);
 
         const activeStageIndex = currentProjectGalleryImages.length > 1 ? currentProjectGalleryStageIndex + 1 : currentProjectGalleryStageIndex;
-        const activeImage = images[activeStageIndex] || images[0];
-        const activeImageCenter = activeImage.offsetLeft + (activeImage.getBoundingClientRect().width / 2);
+        const slides = Array.from(projectDetailStageTrack.querySelectorAll(".project-detail-gallery-stage-slide"));
+        const activeSlide = slides[activeStageIndex] || slides[0];
+        const activeImageCenter = activeSlide.offsetLeft + (activeSlide.getBoundingClientRect().width / 2);
         const viewportCenter = viewport.getBoundingClientRect().width / 2;
         const translateX = (viewportCenter - activeImageCenter);
 
@@ -270,17 +276,11 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function applyProjectGalleryStageImageRatio(image) {
-        if (!image || !image.naturalWidth || !image.naturalHeight) {
+        if (!image) {
             return;
         }
 
-        const imageHeight = image.getBoundingClientRect().height || parseFloat(window.getComputedStyle(image).height);
-
-        if (!imageHeight) {
-            return;
-        }
-
-        image.style.width = ((image.naturalWidth / image.naturalHeight) * imageHeight) + "px";
+        image.style.width = "";
     }
 
     function refreshProjectGalleryImageRatios() {
