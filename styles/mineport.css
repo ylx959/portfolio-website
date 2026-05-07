@@ -125,14 +125,18 @@ input {
     inset: 12px;
     border-radius: 8px;
     overflow: hidden;
-    background:
-        linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.35)),
-        url("../assets/images/main/main.jpg") center/cover no-repeat;
+    background: #ffffff;
     transition:
         filter 1.4s cubic-bezier(0.22, 1, 0.36, 1),
         transform 1.4s cubic-bezier(0.22, 1, 0.36, 1),
         opacity 1.2s ease,
         background-size 1.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.hero.is-main-image-ready .overlay {
+    background:
+        linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.35)),
+        url("../assets/images/main/main.jpg") center/cover no-repeat;
 }
 
 .overlay::after {
@@ -142,8 +146,12 @@ input {
     background:
         linear-gradient(180deg, rgba(17, 15, 14, 0.12), rgba(17, 15, 14, 0.3)),
         radial-gradient(circle at top, rgba(255, 255, 255, 0.2), transparent 48%);
-    opacity: 0.72;
+    opacity: 0;
     transition: opacity 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.hero.is-main-image-ready .overlay::after {
+    opacity: 0.72;
 }
 
 .hero-visual {
@@ -155,9 +163,7 @@ input {
     z-index: 1;
     overflow: hidden;
     border-radius: 8px;
-    background:
-        linear-gradient(180deg, rgba(19, 17, 16, 0.08), rgba(19, 17, 16, 0.2)),
-        url("../assets/images/main/main.jpg") center/cover no-repeat;
+    background: #ffffff;
     box-shadow:
         inset 0 1px 0 rgba(255, 255, 255, 0.16),
         0 24px 60px rgba(16, 14, 13, 0.18);
@@ -174,6 +180,12 @@ input {
     clip-path: inset(0 round 8px);
 }
 
+.hero.is-main-image-ready .hero-visual {
+    background:
+        linear-gradient(180deg, rgba(19, 17, 16, 0.08), rgba(19, 17, 16, 0.2)),
+        url("../assets/images/main/main.jpg") center/cover no-repeat;
+}
+
 .hero-visual::after {
     content: "";
     position: absolute;
@@ -181,7 +193,13 @@ input {
     background:
         linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent 26%, rgba(14, 11, 10, 0.22) 100%),
         radial-gradient(circle at top, rgba(255, 255, 255, 0.12), transparent 52%);
+    opacity: 0;
     pointer-events: none;
+    transition: opacity 0.8s ease;
+}
+
+.hero.is-main-image-ready .hero-visual::after {
+    opacity: 1;
 }
 
 .hero-visual-sides {

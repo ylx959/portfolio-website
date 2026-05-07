@@ -67,6 +67,7 @@ document.addEventListener("DOMContentLoaded", function () {
         SCRUBBING: "scrubbing",
         COMPLETE: "complete"
     };
+    const heroMainImageSource = "assets/images/main/main.jpg";
     const sections = ["home", "projects", "drawings", "about", "contact"]
         .map(function (id) {
             return document.getElementById(id);
@@ -351,6 +352,34 @@ document.addEventListener("DOMContentLoaded", function () {
         if (enterForm) {
             enterForm.classList.add("is-visible");
         }
+    }
+
+    function revealHeroMainImage() {
+        if (!hero) {
+            return;
+        }
+
+        hero.classList.add("is-main-image-ready");
+    }
+
+    function preloadHeroMainImage() {
+        if (!hero) {
+            return;
+        }
+
+        const image = new Image();
+        image.onload = function () {
+            if (image.decode) {
+                image.decode().then(revealHeroMainImage).catch(revealHeroMainImage);
+                return;
+            }
+
+            revealHeroMainImage();
+        };
+        image.onerror = function () {
+            hero.classList.add("is-main-image-unavailable");
+        };
+        image.src = heroMainImageSource;
     }
 
     function wrapWaveText(text, startIndex) {
@@ -1132,6 +1161,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     setupDrawingsTitleAnimation();
     setupSubtitleWaveAnimation();
+    preloadHeroMainImage();
     updateButtonState();
     updateSubtitle();
     preloadProjectDetailImages();
