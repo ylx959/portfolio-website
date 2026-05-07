@@ -7,6 +7,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const hero = document.querySelector(".hero");
     const heroContent = document.querySelector(".content");
     const heroVisual = document.getElementById("heroVisual");
+    const heroMainImages = document.querySelectorAll(".hero-main-image");
     const heroEnteredName = document.getElementById("heroEnteredName");
     const heroSentenceName = document.getElementById("heroSentenceName");
     const title = document.querySelector(".title");
@@ -67,7 +68,6 @@ document.addEventListener("DOMContentLoaded", function () {
         SCRUBBING: "scrubbing",
         COMPLETE: "complete"
     };
-    const heroMainImageSource = "assets/images/main/main.jpg";
     const sections = ["home", "projects", "drawings", "about", "contact"]
         .map(function (id) {
             return document.getElementById(id);
@@ -367,19 +367,35 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        const image = new Image();
-        image.onload = function () {
-            if (image.decode) {
-                image.decode().then(revealHeroMainImage).catch(revealHeroMainImage);
-                return;
-            }
+        const images = Array.from(heroMainImages);
 
+        if (!images.length) {
             revealHeroMainImage();
-        };
-        image.onerror = function () {
+            return;
+        }
+
+        Promise.all(images.map(function (image) {
+            return new Promise(function (resolve, reject) {
+                function decodeImage() {
+                    if (image.decode) {
+                        image.decode().then(resolve).catch(resolve);
+                        return;
+                    }
+
+                    resolve();
+                }
+
+                if (image.complete && image.naturalWidth > 0) {
+                    decodeImage();
+                    return;
+                }
+
+                image.addEventListener("load", decodeImage, { once: true });
+                image.addEventListener("error", reject, { once: true });
+            });
+        })).then(revealHeroMainImage).catch(function () {
             hero.classList.add("is-main-image-unavailable");
-        };
-        image.src = heroMainImageSource;
+        });
     }
 
     function wrapWaveText(text, startIndex) {

@@ -133,18 +133,19 @@ input {
         background-size 1.4s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.overlay::before {
-    content: "";
+.hero-main-image {
     position: absolute;
     inset: 0;
-    background:
-        linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.35)),
-        url("../assets/images/main/main.jpg") center/cover no-repeat;
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
     opacity: 0;
     transition: opacity 1.5s ease;
 }
 
-.hero.is-main-image-ready .overlay::before {
+.hero.is-main-image-ready .hero-main-image {
     opacity: 1;
 }
 
@@ -156,6 +157,7 @@ input {
         linear-gradient(180deg, rgba(17, 15, 14, 0.12), rgba(17, 15, 14, 0.3)),
         radial-gradient(circle at top, rgba(255, 255, 255, 0.2), transparent 48%);
     opacity: 0;
+    z-index: 1;
     transition: opacity 1.2s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
@@ -193,11 +195,10 @@ input {
     content: "";
     position: absolute;
     inset: 0;
-    background:
-        linear-gradient(180deg, rgba(19, 17, 16, 0.08), rgba(19, 17, 16, 0.2)),
-        url("../assets/images/main/main.jpg") center/cover no-repeat;
+    z-index: 1;
+    background: linear-gradient(180deg, rgba(19, 17, 16, 0.08), rgba(19, 17, 16, 0.2));
     opacity: 0;
-    transition: opacity 1.5s ease;
+    transition: opacity 1.2s ease;
 }
 
 .hero.is-main-image-ready .hero-visual::before {
@@ -212,6 +213,7 @@ input {
         linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent 26%, rgba(14, 11, 10, 0.22) 100%),
         radial-gradient(circle at top, rgba(255, 255, 255, 0.12), transparent 52%);
     opacity: 0;
+    z-index: 2;
     pointer-events: none;
     transition: opacity 0.8s ease;
 }
