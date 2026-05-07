@@ -133,10 +133,19 @@ input {
         background-size 1.4s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.hero.is-main-image-ready .overlay {
+.overlay::before {
+    content: "";
+    position: absolute;
+    inset: 0;
     background:
         linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.35)),
         url("../assets/images/main/main.jpg") center/cover no-repeat;
+    opacity: 0;
+    transition: opacity 0.9s ease;
+}
+
+.hero.is-main-image-ready .overlay::before {
+    opacity: 1;
 }
 
 .overlay::after {
@@ -180,10 +189,19 @@ input {
     clip-path: inset(0 round 8px);
 }
 
-.hero.is-main-image-ready .hero-visual {
+.hero-visual::before {
+    content: "";
+    position: absolute;
+    inset: 0;
     background:
         linear-gradient(180deg, rgba(19, 17, 16, 0.08), rgba(19, 17, 16, 0.2)),
         url("../assets/images/main/main.jpg") center/cover no-repeat;
+    opacity: 0;
+    transition: opacity 0.9s ease;
+}
+
+.hero.is-main-image-ready .hero-visual::before {
+    opacity: 1;
 }
 
 .hero-visual::after {
