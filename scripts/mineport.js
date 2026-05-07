@@ -1050,6 +1050,14 @@ document.addEventListener("DOMContentLoaded", function () {
         sectionFloatingNav.classList.toggle("is-collapsed", isCollapsed);
     }
 
+    function shouldWakeFloatingNavOnScroll() {
+        if (!sectionFloatingNav || !sectionFloatingNav.classList.contains("is-visible")) {
+            return false;
+        }
+
+        return window.innerWidth > 768 && window.innerWidth <= 1080;
+    }
+
     function clearFloatingNavIdleTimer() {
         if (floatingNavIdleTimer) {
             window.clearTimeout(floatingNavIdleTimer);
@@ -1792,8 +1800,9 @@ document.addEventListener("DOMContentLoaded", function () {
     window.addEventListener("scroll", function () {
         updateFloatingNavState();
         requestDrawingsStackMotion();
-        if (isPointerOverFloatingNav) {
+        if (isPointerOverFloatingNav || shouldWakeFloatingNavOnScroll()) {
             wakeFloatingNav();
+            scheduleFloatingNavCollapse();
         }
     }, { passive: true });
     window.addEventListener("wheel", function (event) {
