@@ -141,7 +141,7 @@ input {
         linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.35)),
         url("../assets/images/main/main.jpg") center/cover no-repeat;
     opacity: 0;
-    transition: opacity 0.9s ease;
+    transition: opacity 1.5s ease;
 }
 
 .hero.is-main-image-ready .overlay::before {
@@ -197,7 +197,7 @@ input {
         linear-gradient(180deg, rgba(19, 17, 16, 0.08), rgba(19, 17, 16, 0.2)),
         url("../assets/images/main/main.jpg") center/cover no-repeat;
     opacity: 0;
-    transition: opacity 0.9s ease;
+    transition: opacity 1.5s ease;
 }
 
 .hero.is-main-image-ready .hero-visual::before {
