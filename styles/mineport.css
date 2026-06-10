@@ -162,7 +162,7 @@ input {
 }
 
 .hero.is-main-image-ready .overlay::after {
-    opacity: 0.72;
+    opacity: 0.6;
 }
 
 .hero-visual {
@@ -193,6 +193,7 @@ input {
 
 .hero-visual::before {
     content: "";
+    display: none;
     position: absolute;
     inset: 0;
     z-index: 1;
@@ -207,6 +208,7 @@ input {
 
 .hero-visual::after {
     content: "";
+    display: none;
     position: absolute;
     inset: 0;
     background:
@@ -1788,8 +1790,59 @@ input {
     font-size: clamp(2rem, 3.7vw, 3.15rem);
     font-weight: 300;
     line-height: 0.98;
-    letter-spacing: -0.05em;
+    letter-spacing: 0;
     color: #171514;
+}
+
+.about-title:focus-visible {
+    outline: none;
+}
+
+.about-title-choice {
+    display: inline-block;
+    position: relative;
+    color: #171514;
+    cursor: default;
+    padding: 0 0.035em;
+    transition: color 0.28s ease, transform 0.28s ease, font-weight 0.28s ease;
+    z-index: 0;
+}
+
+.about-title-choice::after {
+    content: "";
+    position: absolute;
+    left: -0.03em;
+    right: -0.03em;
+    bottom: 0.02em;
+    height: 0.28em;
+    background: #e5dfd3;
+    opacity: 0;
+    transform: scaleX(0.2) skewX(-8deg);
+    transform-origin: left center;
+    transition: opacity 0.28s ease, transform 0.28s ease;
+    z-index: -1;
+}
+
+.about-title:hover .about-title-choice,
+.about-title:focus-visible .about-title-choice {
+    color: #7d766d;
+}
+
+.about-title:hover .about-title-choice,
+.about-title:focus-visible .about-title-choice {
+    transform: translateY(-0.14em) rotate(-1deg);
+}
+
+.about-title-choice:hover,
+.about-title:focus-visible .about-title-choice {
+    color: #171514;
+    font-weight: 520;
+}
+
+.about-title-choice:hover::after,
+.about-title:focus-visible .about-title-choice::after {
+    opacity: 0.92;
+    transform: scaleX(1) skewX(-8deg);
 }
 
 .about-frame {

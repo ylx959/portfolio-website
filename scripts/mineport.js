@@ -85,6 +85,7 @@ document.addEventListener("DOMContentLoaded", function () {
     let currentProjectGalleryImageIndex = 0;
     let currentProjectGalleryStageIndex = 0;
     let drawingsDetailCloseTimer = null;
+    let currentDrawingsDetailIndex = -1;
     let isSectionStackTicking = false;
     let isDrawingsStackTicking = false;
     let activeCategoryFilter = "all";
@@ -229,6 +230,10 @@ document.addEventListener("DOMContentLoaded", function () {
         currentProjectGalleryStageIndex = index;
         currentProjectGalleryImageIndex = index < 0 ? lastIndex : (index > lastIndex ? 0 : index);
         renderProjectGalleryMode();
+    }
+
+    function shiftProjectGalleryImage(direction) {
+        setProjectGalleryImage(currentProjectGalleryImageIndex + direction);
     }
 
     function settleProjectGalleryLoop() {
@@ -666,6 +671,9 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         lastFocusedDrawingCard = sourceCard || null;
+        currentDrawingsDetailIndex = sourceCard && drawingsTrack
+            ? Array.from(drawingsTrack.querySelectorAll(".drawings-card")).indexOf(sourceCard)
+            : -1;
         drawingsDetailImage.src = imageSource;
         drawingsDetailImage.alt = imageAlt || "";
 
@@ -706,12 +714,43 @@ document.addEventListener("DOMContentLoaded", function () {
             drawingsDetailImage.removeAttribute("src");
             drawingsDetailImage.alt = "";
             body.classList.remove("is-project-detail-open");
+            currentDrawingsDetailIndex = -1;
             drawingsDetailCloseTimer = null;
 
             if (lastFocusedDrawingCard && window.innerWidth > 768) {
                 lastFocusedDrawingCard.focus({ preventScroll: true });
             }
         }, 320);
+    }
+
+    function setDrawingsDetailImage(index) {
+        if (!drawingsTrack || !drawingsDetailImage) {
+            return;
+        }
+
+        const cards = Array.from(drawingsTrack.querySelectorAll(".drawings-card"));
+
+        if (!cards.length) {
+            return;
+        }
+
+        const lastIndex = cards.length - 1;
+        const nextIndex = index < 0 ? lastIndex : (index > lastIndex ? 0 : index);
+        const nextCard = cards[nextIndex];
+        const nextImage = nextCard ? nextCard.querySelector(".drawings-image") : null;
+
+        if (!nextImage) {
+            return;
+        }
+
+        currentDrawingsDetailIndex = nextIndex;
+        lastFocusedDrawingCard = nextCard;
+        drawingsDetailImage.src = nextImage.getAttribute("src");
+        drawingsDetailImage.alt = nextImage.getAttribute("alt") || "";
+    }
+
+    function shiftDrawingsDetailImage(direction) {
+        setDrawingsDetailImage(currentDrawingsDetailIndex + direction);
     }
 
     function preloadProjectDetailImages() {
@@ -1706,13 +1745,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (projectDetailPrevImage) {
         projectDetailPrevImage.addEventListener("click", function () {
-            setProjectGalleryImage(currentProjectGalleryImageIndex - 1);
+            shiftProjectGalleryImage(-1);
         });
     }
 
     if (projectDetailNextImage) {
         projectDetailNextImage.addEventListener("click", function () {
-            setProjectGalleryImage(currentProjectGalleryImageIndex + 1);
+            shiftProjectGalleryImage(1);
         });
     }
 
@@ -1735,6 +1774,21 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (event.key === "Escape" && drawingsDetailOverlay && drawingsDetailOverlay.classList.contains("is-visible")) {
             closeDrawingsDetail();
+        }
+
+        if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+            const direction = event.key === "ArrowLeft" ? -1 : 1;
+
+            if (projectDetailShell && projectDetailShell.classList.contains("is-gallery-mode")) {
+                event.preventDefault();
+                shiftProjectGalleryImage(direction);
+                return;
+            }
+
+            if (drawingsDetailOverlay && drawingsDetailOverlay.classList.contains("is-visible")) {
+                event.preventDefault();
+                shiftDrawingsDetailImage(direction);
+            }
         }
     });
 
