@@ -16,6 +16,10 @@ const project1DetailImages = ["1.jpg", "1-2.jpg", "2.jpg", "2-1.jpg", "3.jpg", "
     return "../assets/images/projects/project1/detail/" + imageName + "?v=1";
 });
 
+const project1GalleryImages = ["ELE SOUTH.jpg", "FLOOR 1  DIAGRAM-01.jpg", "FLOOR 1  DIAGRAM-02.jpg", "FLOOR 1  DIAGRAM-03.jpg", "FLOOR 1   ALL DIAGRAM.jpg", "FLOOR 2  DIAGRAM.jpg", "RENDER1.jpg", "basement.jpg", "concept-02.jpg", "concept-03-01.jpg", "concept_工作區域 1.jpg", "detail.jpg", "detail2.jpg", "ele east.jpg", "floor2.jpg", "floor3.jpg", "floor 1.jpg", "funiture plan.jpg", "master plan isometric-01.jpg", "master plan isometric-03.jpg", "master plan isometric-04.jpg", "master plan isometric-06.jpg", "picture render4.jpg", "program section.jpg", "render2.jpg", "render3.jpg", "section1.jpg", "section2.jpg", "site analysis.jpg", "space developmeny-06.jpg", "space developmeny_工作區域 1 複本 2.jpg", "space developmeny_工作區域 1 複本 3.jpg", "space developmeny_工作區域 1 複本 4.jpg", "space developmeny_工作區域 1 複本 5.jpg", "space developmeny_工作區域 1 複本 6.jpg", "space developmeny_工作區域 1 複本 7.jpg", "space developme block.jpg", "volume devolment.jpg", "volume devolment-01.jpg", "volume devolment-02.jpg", "volume devolment-03.jpg", "volume devolment-04.jpg"].map(function (imageName) {
+    return "../assets/images/projects/project1/gallery/" + imageName + "?v=1";
+});
+
 const project5GalleryImages = ["1.jpg", "2.jpg", "3.jpg", "4.jpg", "5.jpg", "6.jpg", "7.jpg", "8.jpg", "8-1.jpg", "8-2.jpg", "9.jpg", "10.jpg", "11.jpg", "12.jpg", "13.jpg", "14.jpg", "15.jpg", "16.jpg", "17.jpg", "18.jpg", "19.jpg", "20.jpg", "21.jpg", "22.jpg", "23.jpg", "24.jpg", "25.jpg", "26.jpg", "27.jpg", "28.jpg"].map(function (imageName) {
     return "../assets/images/projects/project5/gallery/" + imageName + "?v=1";
 });
@@ -40,7 +44,7 @@ const project6Description = [
 ];
 
 window.MINEPORT_PROJECT_DETAIL_DATA = [
-    createProjectDetail("Double Interaction", "Taipei, Taiwan", "Education", "Architecture", "2024 Summer", ["A spatial study shaped by shifting views, layered circulation, and a quiet exchange between structure and movement.", "The project is conceived as a sequence of measured moments where public openness and intimate pause can coexist."], "../assets/images/projects/project1/card/project1.jpg", project1DetailImages, project1DetailImages),
+    createProjectDetail("Double Interaction", "Taipei, Taiwan", "Education", "Architecture", "2024 Summer", ["A spatial study shaped by shifting views, layered circulation, and a quiet exchange between structure and movement.", "The project is conceived as a sequence of measured moments where public openness and intimate pause can coexist."], "../assets/images/projects/project1/card/project1.jpg", project1DetailImages, project1GalleryImages),
     createProjectDetail("Euphoria", "Senior Center", "Residential", "Architecture", "2023 Fall", ["Located in Toad Mountain, Taipei, this Senior Center uses dispersed volumes for resting, rehabilitation, social interaction, and reading, giving elderly users a freer and gentler daily rhythm."], "../assets/images/projects/project2/card/project2.jpg", ["1.jpg", "2-3.jpg", "2-4.jpg", "2-5.jpg", "2-6.png", "3.jpg", "4.jpg", "5.jpg", "5-1.jpg", "12.png", "13.png"].map(function (imageName) {
         return "../assets/images/projects/project2/detail/" + imageName + "?v=3";
     }), ["1.jpg", "3.jpg", "4.jpg", "5.jpg", "6.jpg", "7.jpg", "8.jpg", "9.jpg", "10.jpg", "11.png", "12.png", "13.png", "14.jpg", "15.jpg", "16.jpg", "17.jpg", "18.jpg", "19.jpg", "20.png", "21.jpg"].map(function (imageName) {
