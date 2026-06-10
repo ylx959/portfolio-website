@@ -554,6 +554,12 @@ document.addEventListener("DOMContentLoaded", function () {
             document.activeElement.blur();
         }
 
+        if (hero) {
+            hero.scrollIntoView({ block: "start", inline: "nearest" });
+        }
+
+        window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+
         [0, 90, 260].forEach(function (delay) {
             window.setTimeout(function () {
                 if (hero) {
@@ -1222,6 +1228,57 @@ document.addEventListener("DOMContentLoaded", function () {
         updateFloatingNavState();
     }
 
+    function submitEnterForm() {
+        const enteredName = nameInput ? formatDisplayName(nameInput.value).trim() : "";
+
+        if (nameInput) {
+            nameInput.value = enteredName;
+        }
+
+        resetMobileHeroViewport();
+
+        if (enteredName === "") {
+            updateButtonState();
+            return;
+        }
+
+        if (!isDescriptionRevealComplete) {
+            return;
+        }
+
+        if (heroEnteredName) {
+            heroEnteredName.textContent = enteredName;
+        }
+        if (heroSentenceName) {
+            heroSentenceName.textContent = enteredName;
+        }
+        unlockPage(enteredName);
+
+        if (isMobileHeroMode()) {
+            setHeroPhase(HERO_PHASES.MORPHED);
+            heroState.isStoryUnlocked = true;
+            heroState.isAwaitingAutoScroll = true;
+            scheduleHeroTimer("autoScroll", 900, function () {
+                const projectsSection = document.getElementById("projects");
+
+                if (projectsSection) {
+                    smoothScrollToSection(projectsSection);
+                }
+            });
+            return;
+        }
+
+        setHeroPhase(HERO_PHASES.ENTERING);
+
+        scheduleHeroTimer("morph", 2140, function () {
+            setHeroPhase(HERO_PHASES.MORPHED);
+
+            scheduleHeroTimer("unlock", 1100, function () {
+                heroState.isStoryUnlocked = true;
+            });
+        });
+    }
+
     setupDrawingsTitleAnimation();
     setupSubtitleWaveAnimation();
     preloadHeroMainImage();
@@ -1249,59 +1306,21 @@ document.addEventListener("DOMContentLoaded", function () {
             updateButtonState();
             updateSubtitle();
         });
+
+        nameInput.addEventListener("keydown", function (event) {
+            if (event.key !== "Enter" || event.isComposing || !isMobileHeroMode()) {
+                return;
+            }
+
+            event.preventDefault();
+            submitEnterForm();
+        });
     }
 
     if (enterForm) {
         enterForm.addEventListener("submit", function (event) {
             event.preventDefault();
-            const enteredName = nameInput ? formatDisplayName(nameInput.value).trim() : "";
-
-            if (nameInput) {
-                nameInput.value = enteredName;
-            }
-
-            resetMobileHeroViewport();
-
-            if (enteredName === "") {
-                updateButtonState();
-                return;
-            }
-
-            if (!isDescriptionRevealComplete) {
-                return;
-            }
-
-            if (heroEnteredName) {
-                heroEnteredName.textContent = enteredName;
-            }
-            if (heroSentenceName) {
-                heroSentenceName.textContent = enteredName;
-            }
-            unlockPage(enteredName);
-
-            if (isMobileHeroMode()) {
-                setHeroPhase(HERO_PHASES.MORPHED);
-                heroState.isStoryUnlocked = true;
-                heroState.isAwaitingAutoScroll = true;
-                scheduleHeroTimer("autoScroll", 900, function () {
-                    const projectsSection = document.getElementById("projects");
-
-                    if (projectsSection) {
-                        smoothScrollToSection(projectsSection);
-                    }
-                });
-                return;
-            }
-
-            setHeroPhase(HERO_PHASES.ENTERING);
-
-            scheduleHeroTimer("morph", 2140, function () {
-                setHeroPhase(HERO_PHASES.MORPHED);
-
-                scheduleHeroTimer("unlock", 1100, function () {
-                    heroState.isStoryUnlocked = true;
-                });
-            });
+            submitEnterForm();
         });
     }
 
@@ -1747,11 +1766,17 @@ document.addEventListener("DOMContentLoaded", function () {
         projectDetailPrevImage.addEventListener("click", function () {
             shiftProjectGalleryImage(-1);
         });
+        projectDetailPrevImage.addEventListener("dblclick", function (event) {
+            event.preventDefault();
+        });
     }
 
     if (projectDetailNextImage) {
         projectDetailNextImage.addEventListener("click", function () {
             shiftProjectGalleryImage(1);
+        });
+        projectDetailNextImage.addEventListener("dblclick", function (event) {
+            event.preventDefault();
         });
     }
 

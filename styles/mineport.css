@@ -57,6 +57,11 @@ input {
     font: inherit;
 }
 
+button,
+a {
+    touch-action: manipulation;
+}
+
 .top-nav {
     position: absolute;
     top: 24px;
