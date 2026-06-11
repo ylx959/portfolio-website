@@ -336,15 +336,14 @@ document.addEventListener("DOMContentLoaded", function () {
         enterButton.disabled = nameInput.value.trim() === "";
     }
 
-    function sanitizeEnglishName(value) {
+    function sanitizeDisplayName(value) {
         return (value || "")
-            .replace(/[^A-Za-z\s'-]/g, "")
             .replace(/\s{2,}/g, " ")
             .replace(/^\s+/, "");
     }
 
     function formatDisplayName(value) {
-        return sanitizeEnglishName(value)
+        return sanitizeDisplayName(value)
             .toLowerCase()
             .replace(/\b[a-z]/g, function (match) {
                 return match.toUpperCase();
