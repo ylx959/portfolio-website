@@ -91,6 +91,7 @@ document.addEventListener("DOMContentLoaded", function () {
     let activeCategoryFilter = "all";
     let activeYearFilter = "all";
     let activeTypologyFilter = "all";
+    let submittedDisplayName = "";
     let timeFilterAutoCloseTimer = null;
     let typologyFilterAutoCloseTimer = null;
     let timeFilterCloseTimer = null;
@@ -333,7 +334,7 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        enterButton.disabled = nameInput.value.trim() === "";
+        enterButton.disabled = hasEntered || nameInput.value.trim() === "";
     }
 
     function sanitizeDisplayName(value) {
@@ -517,6 +518,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function updateSubtitle() {
         if (!nameInput || !subtitle) {
+            return;
+        }
+
+        if (hasEntered) {
+            if (submittedDisplayName !== "" && nameInput.value !== submittedDisplayName) {
+                nameInput.value = submittedDisplayName;
+            }
             return;
         }
 
@@ -1221,13 +1229,35 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function unlockPage(name) {
         hasEntered = true;
+        submittedDisplayName = name;
         html.classList.remove("is-locked");
         body.classList.remove("is-locked");
         resetHeroFlowState();
         updateFloatingNavState();
     }
 
+    function lockEnterForm(name) {
+        submittedDisplayName = name;
+
+        if (nameInput) {
+            nameInput.value = name;
+            nameInput.blur();
+            nameInput.readOnly = true;
+            nameInput.disabled = true;
+            nameInput.setAttribute("aria-disabled", "true");
+        }
+
+        if (enterButton) {
+            enterButton.disabled = true;
+            enterButton.setAttribute("aria-disabled", "true");
+        }
+    }
+
     function submitEnterForm() {
+        if (hasEntered) {
+            return;
+        }
+
         const enteredName = nameInput ? formatDisplayName(nameInput.value).trim() : "";
 
         if (nameInput) {
@@ -1251,6 +1281,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (heroSentenceName) {
             heroSentenceName.textContent = enteredName;
         }
+        lockEnterForm(enteredName);
         unlockPage(enteredName);
 
         if (isMobileHeroMode()) {
