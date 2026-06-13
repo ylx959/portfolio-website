@@ -13,7 +13,7 @@ function createProjectDetail(title, location, typology, category, year, descript
 }
 
 const project1DetailImages = ["1.jpg", "1-2.jpg", "2.jpg", "2-1.jpg", "3.jpg", "4.jpg", "5.jpg", "6.jpg", "7.jpg", "8.jpg", "9.jpg", "10.jpg", "12.jpg", "13.jpg"].map(function (imageName) {
-    return "../assets/images/projects/project1/detail/" + imageName + "?v=2";
+    return "../assets/images/projects/project1/detail/" + imageName + "?v=3";
 });
 
 const project1GalleryImages = ["0.jpg", "1.jpg", "1-1.jpg", "1-2.jpg", "1-3.jpg", "1-4.jpg", "2-1.jpg", "2-2.jpg", "2-3.jpg", "2-4.jpg", "2-5.jpg", "2-6.jpg", "2-7.jpg", "3-1.jpg", "3-2.jpg", "3-3.jpg", "3-4.jpg", "3-5.jpg", "3-6.jpg", "3-7.jpg", "3-8.jpg", "3-9.jpg", "4-1.jpg", "4-2.jpg", "4-3.jpg", "4-4.jpg", "4-5.jpg", "4-6.jpg", "4-7.jpg", "4-8.jpg", "5-1.jpg", "5-2.jpg", "5-3.jpg", "5-4.jpg", "5-5.jpg", "5-6.jpg", "5-7.jpg"].map(function (imageName) {
@@ -28,7 +28,7 @@ const project1Description = [
 const project1FullDescription = "Instead of separating making, discussion, and circulation into fixed zones, the proposal allows these activities to overlap throughout the building. Studio work can spill into shared areas, informal critiques can happen along circulation paths, and outdoor spaces become part of the daily rhythm of learning rather than leftover space around the building.\n\nThis arrangement encourages students to encounter work outside their own discipline and to understand creativity as something that grows through contact. The architecture supports moments of watching, joining, pausing, and exchanging, so the school environment becomes more fluid and socially active.\n\nBy treating the workshop as a living container for unpredictable interaction, the project values process as much as finished work. Its spatial organization is designed to make collaboration feel natural, allowing different ideas, routines, and personalities to meet and generate new possibilities.";
 
 const project3DetailImages = ["1.jpg", "2.jpg", "2-1.jpg", "2-2.jpg", "2-3.jpg", "3.jpg", "4.jpg", "5.jpg", "6.jpg", "7.jpg", "8.jpg", "9.jpg", "10.jpg", "11.jpg", "12.jpg", "13.jpg"].map(function (imageName) {
-    return "../assets/images/projects/project3/detail/" + imageName + "?v=2";
+    return "../assets/images/projects/project3/detail/" + imageName + "?v=3";
 });
 
 const project3GalleryImages = ["1.jpg", "1-2.jpg", "1-3.jpg", "1-4.jpg", "2-1.jpg", "3-1.jpg", "3-2.jpg", "3-3.jpg", "3-3-1.jpg", "3-3-2.jpg", "3-3-3.jpg", "3-3-4.jpg", "3-3-5.jpg", "3-3-6.jpg", "3-4.jpg", "3-5.jpg", "3-6.jpg", "3-7.jpg", "3-8.jpg", "3-9.jpg", "3-10.jpg", "3-11.jpg", "3-12.jpg", "3-13.jpg", "3-14.jpg", "4-1.jpg", "4-2.jpg", "4-3.jpg", "4-4.jpg", "4-5.jpg", "4-6.jpg", "4-7.jpg", "4-8.jpg", "4-9.jpg", "4-11.jpg", "5-1.jpg"].map(function (imageName) {
@@ -36,7 +36,7 @@ const project3GalleryImages = ["1.jpg", "1-2.jpg", "1-3.jpg", "1-4.jpg", "2-1.jp
 });
 
 const project4DetailImages = ["1.jpg", "1-2.jpg", "1-3.jpg", "2-1.jpg", "2-2.jpg", "2-3-1.jpg", "2-3-2.jpg", "2-9.jpg", "2-10.jpg", "3-1.jpg", "3-3.jpg"].map(function (imageName) {
-    return "../assets/images/projects/project4/detail/" + imageName + "?v=2";
+    return "../assets/images/projects/project4/detail/" + imageName + "?v=3";
 });
 
 const project4GalleryImages = ["0.jpg", "0-1.jpg", "1.jpg", "1-2.jpg", "1-3.jpg", "1-4.jpg", "1-5.jpg", "2-1.jpg", "2-2.jpg", "2-3-1.jpg", "2-3-2.jpg", "2-4-1.jpg", "2-4-2.jpg", "2-5-1.jpg", "2-5-2.jpg", "2-6.jpg", "2-7.jpg", "2-8.jpg", "2-9.jpg", "2-10.jpg", "2-11.jpg", "2-11-2.jpg", "3-1.jpg", "3-2.jpg", "3-3.jpg"].map(function (imageName) {
@@ -51,7 +51,7 @@ const project4Description = [
 const project4FullDescription = "To challenge the repetitive stacking commonly found in residential towers, the housing units are deliberately arranged in a staggered configuration. By shifting units forward and backward on different floors, a variety of intermediate spaces are created, including terraces, semi-outdoor platforms, and shared gardens. These spaces provide opportunities for relaxation, informal gatherings, and everyday social interaction, encouraging a stronger sense of community among residents.\n\nThe greenery extends throughout the vertical grid and into these shared spaces, transforming vegetation from a decorative element into an integral component of daily life. Through the integration of nature, architecture, and social activities, the project seeks to create a vertical living environment that promotes both ecological sustainability and community engagement.\n\nBy combining a vertical grid system with staggered residential units, the project reintroduces greenery, interaction, and shared experiences into high-density housing, creating a sustainable and socially connected vertical community.";
 
 const project8DetailImages = ["1-1.jpg", "1-2.jpg", "1-3.jpg", "1-4.jpg", "1-5.jpg", "1-6.jpg", "1.jpg", "6.jpg", "7.jpg", "8.jpg", "9.jpg", "10.jpg"].map(function (imageName) {
-    return "../assets/images/projects/project8/detail/" + imageName + "?v=3";
+    return "../assets/images/projects/project8/detail/" + imageName + "?v=4";
 });
 
 const project8GalleryImages = ["1-1.jpg", "1-2.jpg", "1-3.jpg", "1-4.jpg", "1-5.jpg", "1-6.jpg", "1-6-2.jpg", "1-7-1.jpg", "1-7-2.jpg", "1-8.jpg", "1-9.jpg", "1-10.jpg", "1-11.jpg", "1-12.jpg", "1-13.jpg", "1-14.jpg", "1-15.jpg", "1-16.jpg", "2-1.jpg", "2-2.jpg", "2-3.jpg", "3-1.jpg", "3-2.jpg", "3-3.jpg", "3-4.jpg", "4-1.jpg", "4-2.jpg", "4-3.jpg", "4-4.jpg", "4-5.jpg", "5-1.jpg", "5-2.jpg", "5-3.jpg", "6-1.jpg", "6-2.jpg", "6-3.jpg", "6-4.jpg", "7-1.jpg", "7-2.jpg", "7-3.jpg", "7-4.jpg", "7-5.jpg", "8-1.jpg", "8-2.jpg", "9-1.jpg"].map(function (imageName) {
@@ -59,7 +59,7 @@ const project8GalleryImages = ["1-1.jpg", "1-2.jpg", "1-3.jpg", "1-4.jpg", "1-5.
 });
 
 const project9DetailImages = ["1.jpg", "2.jpg", "3.jpg", "4.jpg", "5.jpg", "6.jpg", "7.jpg", "8.jpg", "9.jpg", "10.jpg", "11.png", "12.jpg", "13.png", "14.png", "15.jpg", "16.jpg"].map(function (imageName) {
-    return "../assets/images/projects/project9/detail/" + imageName + "?v=5";
+    return "../assets/images/projects/project9/detail/" + imageName + "?v=6";
 });
 
 const project9GalleryImages = ["1-1.jpg", "1-2.jpg", "2-1.jpg", "2-2.jpg", "2-3.jpg", "2-4.jpg", "2-5.jpg", "2-6.jpg", "3-1.jpg", "3-2.jpg", "3-3.jpg", "3-4.jpg", "3-5.jpg", "4-1.jpg", "4-2.jpg", "4-3.jpg", "4-4.jpg", "4-5.jpg", "4-6.jpg", "4-7.jpg", "4-8.jpg", "4-9.jpg", "5-1.jpg", "5-2.jpg", "5-3.jpg", "5-4.jpg", "5-5.jpg", "6-1.jpg", "6-2.jpg", "6-3.jpg", "6-4.jpg", "6-5.jpg", "6-6.jpg", "6-7.jpg", "6-8.jpg", "6-9.jpg", "6-10.jpg", "6-11.jpg", "6-12.jpg", "6-13.jpg", "6-14.jpg", "6-15.png", "6-16.jpg", "6-17.jpg", "7-1.jpg", "7-2.jpg", "7-3.jpg", "7-4.jpg", "7-5.jpg", "7-6.jpg", "7-7.jpg", "7-8.jpg", "8-1.jpg", "8-2.jpg", "8-3.jpg", "8-4.jpg", "8-5.jpg", "8-6-1.jpg", "8-6.jpg", "8-7.png", "9-1.jpg", "9-2.jpg", "9-3.jpg", "9-4.jpg", "9-5.jpg", "9-6.jpg", "9-7.jpg", "9-8.png", "9-9.jpg", "10-1.png", "10-2.jpg", "10-3.jpg", "10-4.jpg", "10-5.jpg"].map(function (imageName) {
@@ -92,7 +92,7 @@ const project5GalleryImages = ["1.jpg", "2.jpg", "3.jpg", "4.jpg", "5.jpg", "6.j
 });
 
 const project5DetailImages = ["1.jpg", "2.jpg", "8-2.jpg", "13.jpg", "14.jpg", "15.jpg", "16.jpg", "17.jpg", "18.jpg", "21.jpg", "22.jpg", "25.jpg", "26.jpg", "27.jpg", "28.jpg"].map(function (imageName) {
-    return "../assets/images/projects/project5/detail/" + imageName + "?v=2";
+    return "../assets/images/projects/project5/detail/" + imageName + "?v=3";
 });
 
 const project5Description = [
@@ -107,7 +107,7 @@ const project6GalleryImages = ["1.jpg", "2.jpg", "3.jpg", "4.jpg", "5.jpg", "5-1
 });
 
 const project6DetailImages = ["1.jpg", "2.jpg", "5.jpg", "5-1.jpg", "13.jpg", "14.jpg", "15.jpg", "16.jpg", "17.jpg", "18.jpg", "19.jpg", "20.jpg", "24.jpg", "25.jpg", "27.jpg", "28.jpg", "29.jpg"].map(function (imageName) {
-    return "../assets/images/projects/project6/detail/" + imageName + "?v=2";
+    return "../assets/images/projects/project6/detail/" + imageName + "?v=3";
 });
 
 const project6FullDescription = "The proposal examines how architecture can support an interdisciplinary research environment where technological experimentation, human-centered design, and biomedical innovation are brought into closer relationship. Rather than treating laboratories as isolated technical rooms, the project considers them as active spaces for exchange, observation, collaboration, and shared discovery.\n\nDifferent research activities require different degrees of openness, privacy, flexibility, and technical control, so the spatial organization responds to changing forms of scientific work. Laboratory spaces, collaborative learning areas, circulation, and shared public zones are arranged to encourage both focused research and informal interdisciplinary interaction.\n\nThrough this approach, the project rethinks the conventional laboratory typology as a more adaptive and communicative architectural framework. The lab becomes not only a place for scientific production, but also a spatial interface between emerging technology, design thinking, education, and contemporary social challenges.";
@@ -120,7 +120,7 @@ const project6Description = [
 window.MINEPORT_PROJECT_DETAIL_DATA = [
     createProjectDetail("Double Interaction", "Campus workshop", "Education", "Architecture", "2024 Summer", project1Description, "../assets/images/projects/project1/card/project1.jpg", project1DetailImages, project1GalleryImages, project1FullDescription),
     createProjectDetail("Euphoria", "Senior Center", "Residential", "Architecture", "2023 Fall", ["Located in Toad Mountain, Taipei, this Senior Center uses dispersed volumes for resting, rehabilitation, social interaction, and reading, giving elderly users a freer and gentler daily rhythm."], "../assets/images/projects/project2/card/project2.jpg", ["1.jpg", "2-3.jpg", "2-4.jpg", "2-5.jpg", "2-6.png", "3.jpg", "4.jpg", "5.jpg", "5-1.jpg", "12.png", "13.png"].map(function (imageName) {
-        return "../assets/images/projects/project2/detail/" + imageName + "?v=4";
+        return "../assets/images/projects/project2/detail/" + imageName + "?v=5";
     }), ["1.jpg", "3.jpg", "4.jpg", "5.jpg", "6.jpg", "7.jpg", "8.jpg", "9.jpg", "10.jpg", "11.png", "12.png", "13.png", "14.jpg", "15.jpg", "16.jpg", "17.jpg", "18.jpg", "19.jpg", "20.png", "21.jpg"].map(function (imageName) {
         return "../assets/images/projects/project2/gallery/" + imageName + "?v=12";
     }), "Following the slope and existing vegetation, the architecture creates a softer boundary between built space and landscape. Semi-outdoor corridors, courtyards, and shaded transitional areas allow movement to become part of the daily experience, giving users access to air, light, and greenery without relying on a single central hall.\n\nThe project emphasizes familiarity and legibility through variations in scale, openings, and materiality, helping residents recognize and navigate each area with ease. Communal spaces are balanced with quiet corners, supporting both social connection and moments of personal rest.\n\nUltimately, the senior center is imagined as a living community integrated with nature and everyday routines. Aging is treated not as a condition of isolation, but as a continuous experience supported by movement, care, and a gentle relationship with the surrounding environment."),
@@ -129,7 +129,7 @@ window.MINEPORT_PROJECT_DETAIL_DATA = [
     createProjectDetail("Scene of Sense", "Children's Theater", "Culture", "Architecture", "2023 Winter", project5Description, "../assets/images/projects/project5/card/project5.jpg", project5DetailImages, project5GalleryImages, project5FullDescription),
     createProjectDetail("Meditouch", "Interdisciplinary Lab", "Education", "Architecture", "2025 Summer", project6Description, "../assets/images/projects/project6/card/project6.jpg", project6DetailImages, project6GalleryImages, project6FullDescription),
     createProjectDetail("Kitchenless", "COLLECTIVE HOUSING", "Residential", "Architecture", "2024 Winter", ["This kitchenless social housing concept optimizes space and cost while encouraging community through shared kitchens.", "It responds to food delivery, meal services, and sustainability trends with a more affordable, resource-efficient model for urban living."], "../assets/images/projects/project7/card/project7.jpg", [1, 6, 7, 9, 10, 11, 12, 14, 18].map(function (imageNumber) {
-        return "../assets/images/projects/project7/detail/" + imageNumber + ".jpg?v=2";
+        return "../assets/images/projects/project7/detail/" + imageNumber + ".jpg?v=3";
     }), ["1.jpg", "1-1.jpg", "1-2.jpg", "1-3.jpg", "1-4.jpg", "2.jpg", "3.jpg", "4.jpg", "4-1.jpg", "5.jpg", "6.jpg", "7.jpg", "8.jpg", "9.jpg", "10.jpg", "11.jpg", "11-1.jpg", "12.jpg", "13.jpg", "14.jpg", "15.jpg", "16.jpg", "16-1.jpg", "17.jpg", "18.jpg", "18-2.jpg", "18-3.jpg", "18-4.jpg", "19.jpg", "20.jpg"].map(function (imageName) {
         return "../assets/images/projects/project7/gallery/" + imageName + "?v=5";
     }), "Cooking is reimagined as a collective routine that can produce social contact as well as daily support. Shared food spaces become places where residents meet, exchange help, and build small rituals of community, while the private units remain compact, efficient, and easier to maintain.\n\nThe proposal also responds to changing urban habits, where delivery services, prepared meals, and shared facilities alter the role of the domestic kitchen. Instead of duplicating the same infrastructure in every unit, resources are concentrated into communal areas that can serve more people with greater flexibility.\n\nIn this model, housing becomes more than a collection of rooms. It operates as a resource-conscious living system that reduces cost, limits redundancy, and creates stronger social ties through the shared use of space."),
