@@ -61,8 +61,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const descriptionRevealDuration = 4200;
     const scrollDuration = 1600;
     const subtitleEnterAnimationDuration = 760;
-    const projectImageBatchSize = 5;
-    const projectImageBatchThreshold = 2;
     const HERO_PHASES = {
         IDLE: "idle",
         ENTERING: "entering",
@@ -87,11 +85,7 @@ document.addEventListener("DOMContentLoaded", function () {
     let lastFocusedDrawingCard = null;
     let projectDetailCloseTimer = null;
     let currentProjectDetailIndex = -1;
-    let currentProjectDetailImages = [];
-    let currentProjectDetailRenderedCount = 0;
-    let currentProjectGalleryAllImages = [];
     let currentProjectGalleryImages = [];
-    let currentProjectGalleryRenderedCount = 0;
     let currentProjectGalleryImageIndex = 0;
     let currentProjectGalleryStageIndex = 0;
     let drawingsDetailCloseTimer = null;
@@ -194,88 +188,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }, { once: true });
     }
 
-    function appendProjectDetailImages(targetCount) {
-        if (!projectDetailGallery || !currentProjectDetailImages.length) {
-            return;
-        }
-
-        const nextCount = Math.min(targetCount, currentProjectDetailImages.length);
-
-        if (nextCount <= currentProjectDetailRenderedCount) {
-            return;
-        }
-
-        const fragment = document.createDocumentFragment();
-        const detail = projectDetails[currentProjectDetailIndex];
-        const titleText = detail ? detail.title : "Project";
-
-        currentProjectDetailImages.slice(currentProjectDetailRenderedCount, nextCount).forEach(function (imageSrc, offset) {
-            const imageIndex = currentProjectDetailRenderedCount + offset;
-            const figure = document.createElement("figure");
-            const image = document.createElement("img");
-            figure.className = "project-detail-gallery-item";
-            figure.setAttribute("style", getPreviewImageStyle(imageSrc) + " transition-delay:" + ((imageIndex % projectImageBatchSize) * 28) + "ms");
-            image.className = "project-detail-gallery-image";
-            image.src = imageSrc;
-            image.alt = titleText + " image " + (imageIndex + 1);
-            image.loading = imageIndex < 2 ? "eager" : "lazy";
-            image.decoding = "async";
-            image.draggable = false;
-            setupProgressiveImage(image);
-            image.addEventListener("click", blockProjectDetailImageNavigation);
-            figure.appendChild(image);
-            fragment.appendChild(figure);
-        });
-
-        projectDetailGallery.appendChild(fragment);
-        currentProjectDetailRenderedCount = nextCount;
-    }
-
-    function loadMoreProjectDetailImages() {
-        appendProjectDetailImages(currentProjectDetailRenderedCount + projectImageBatchSize);
-    }
-
-    function maybeLoadMoreProjectDetailImages() {
-        if (!projectDetailGallery || currentProjectDetailRenderedCount >= currentProjectDetailImages.length) {
-            return;
-        }
-
-        const remainingScroll = projectDetailGallery.scrollHeight - projectDetailGallery.scrollTop - projectDetailGallery.clientHeight;
-
-        if (remainingScroll < 900) {
-            loadMoreProjectDetailImages();
-        }
-    }
-
-    function loadMoreProjectGalleryImages(minimumCount) {
-        if (!currentProjectGalleryAllImages.length) {
-            currentProjectGalleryImages = [];
-            currentProjectGalleryRenderedCount = 0;
-            return;
-        }
-
-        const requestedCount = Math.max(minimumCount || 0, currentProjectGalleryRenderedCount + projectImageBatchSize);
-        const nextCount = Math.min(requestedCount, currentProjectGalleryAllImages.length);
-
-        if (nextCount <= currentProjectGalleryRenderedCount) {
-            return;
-        }
-
-        currentProjectGalleryImages = currentProjectGalleryAllImages.slice(0, nextCount);
-        currentProjectGalleryRenderedCount = nextCount;
-        renderProjectGalleryMode();
-    }
-
-    function maybeLoadMoreProjectGalleryImages(targetIndex) {
-        if (currentProjectGalleryRenderedCount >= currentProjectGalleryAllImages.length) {
-            return;
-        }
-
-        if (targetIndex >= currentProjectGalleryRenderedCount - projectImageBatchThreshold) {
-            loadMoreProjectGalleryImages(targetIndex + projectImageBatchThreshold + 1);
-        }
-    }
-
     function setButtonText(button, text, textSelector, textClassName) {
         if (!button) {
             return;
@@ -308,12 +220,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function renderProjectGalleryMode() {
-        if (!projectDetailStageTrack) {
-            return;
-        }
-
-        if (!currentProjectGalleryImages.length) {
-            projectDetailStageTrack.innerHTML = "";
+        if (!projectDetailStageTrack || !currentProjectGalleryImages.length) {
             return;
         }
 
@@ -374,8 +281,6 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!currentProjectGalleryImages.length) {
             return;
         }
-
-        maybeLoadMoreProjectGalleryImages(index);
 
         const lastIndex = currentProjectGalleryImages.length - 1;
         currentProjectGalleryStageIndex = index;
@@ -747,13 +652,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
         cancelInertiaScroll();
 
+        const detailImages = detail.images.slice();
+        const galleryImages = (detail.galleryImages || detail.images).slice();
+
         lastFocusedProjectCard = sourceCard || null;
         currentProjectDetailIndex = index;
-        currentProjectDetailImages = detail.images.slice();
-        currentProjectDetailRenderedCount = 0;
-        currentProjectGalleryAllImages = (detail.galleryImages || detail.images).slice();
-        currentProjectGalleryImages = [];
-        currentProjectGalleryRenderedCount = 0;
+        currentProjectGalleryImages = galleryImages;
         currentProjectGalleryImageIndex = 0;
         currentProjectGalleryStageIndex = 0;
         projectDetailTitle.textContent = detail.title;
@@ -766,11 +670,18 @@ document.addEventListener("DOMContentLoaded", function () {
         if (projectDetailFullDescription) {
             projectDetailFullDescription.textContent = buildFullDescription(detail);
         }
-        projectDetailGallery.innerHTML = "";
-        appendProjectDetailImages(projectImageBatchSize);
-        loadMoreProjectGalleryImages(projectImageBatchSize);
+        projectDetailGallery.innerHTML = detailImages.map(function (imageSrc, imageIndex) {
+            const itemStyle = getPreviewImageStyle(imageSrc) + " transition-delay:" + (imageIndex * 28) + "ms";
+            const altText = detail.title + " image " + (imageIndex + 1);
+            return '<figure class="project-detail-gallery-item" style="' + escapeAttribute(itemStyle) + '"><img class="project-detail-gallery-image" src="' + escapeAttribute(imageSrc) + '" alt="' + escapeAttribute(altText) + '" loading="eager" decoding="async" draggable="false"></figure>';
+        }).join("");
+        projectDetailGallery.querySelectorAll(".project-detail-gallery-image").forEach(function (image) {
+            setupProgressiveImage(image);
+            image.addEventListener("click", blockProjectDetailImageNavigation);
+        });
         setProjectDetailExpanded(false);
         setProjectGalleryMode(false);
+        renderProjectGalleryMode();
 
         if (projectDetailCloseTimer) {
             window.clearTimeout(projectDetailCloseTimer);
@@ -785,7 +696,6 @@ document.addEventListener("DOMContentLoaded", function () {
             projectDetailShell.scrollTop = 0;
         }
         projectDetailGallery.scrollTop = 0;
-        maybeLoadMoreProjectDetailImages();
 
         window.requestAnimationFrame(function () {
             window.requestAnimationFrame(function () {
@@ -925,7 +835,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function preloadProjectDetailImages() {
         const uniqueImages = Array.from(new Set(projectDetails.flatMap(function (detail) {
-            return detail.images.slice(0, 1);
+            return detail.images.concat(detail.galleryImages || []);
         })));
 
         uniqueImages.forEach(function (imageSrc) {
@@ -2105,10 +2015,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 settleProjectGalleryLoop();
             }
         });
-    }
-
-    if (projectDetailGallery) {
-        projectDetailGallery.addEventListener("scroll", maybeLoadMoreProjectDetailImages, { passive: true });
     }
 
     if (drawingsDetailClose) {
