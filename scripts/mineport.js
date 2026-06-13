@@ -223,7 +223,7 @@ document.addEventListener("DOMContentLoaded", function () {
         image.className = "project-detail-gallery-image";
         image.src = imageSrc;
         image.alt = (detail ? detail.title : "Project") + " image " + (imageIndex + 1);
-        image.loading = imageIndex === 0 ? "eager" : "lazy";
+        image.loading = "eager";
         image.decoding = "async";
         image.draggable = false;
         image.addEventListener("click", blockProjectDetailImageNavigation);
@@ -250,7 +250,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function loadMoreProjectDetailImages() {
-        requestProjectDetailImages(currentProjectDetailTargetCount + projectImageBatchSize);
+        requestProjectDetailImages(isMobileHeroMode()
+            ? currentProjectDetailImages.length
+            : currentProjectDetailTargetCount + projectImageBatchSize);
     }
 
     function maybeLoadMoreProjectDetailImages() {
@@ -258,7 +260,10 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        const remainingScroll = projectDetailGallery.scrollHeight - projectDetailGallery.scrollTop - projectDetailGallery.clientHeight;
+        const scrollContainer = isMobileHeroMode() && projectDetailShell
+            ? projectDetailShell
+            : projectDetailGallery;
+        const remainingScroll = scrollContainer.scrollHeight - scrollContainer.scrollTop - scrollContainer.clientHeight;
 
         if (remainingScroll < 900) {
             loadMoreProjectDetailImages();
@@ -753,7 +758,7 @@ document.addEventListener("DOMContentLoaded", function () {
             projectDetailFullDescription.textContent = buildFullDescription(detail);
         }
         projectDetailGallery.innerHTML = "";
-        requestProjectDetailImages(projectImageBatchSize);
+        requestProjectDetailImages(isMobileHeroMode() ? currentProjectDetailImages.length : projectImageBatchSize);
         setProjectDetailExpanded(false);
         setProjectGalleryMode(false);
         renderProjectGalleryMode();
@@ -2098,6 +2103,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (projectDetailGallery) {
         projectDetailGallery.addEventListener("scroll", maybeLoadMoreProjectDetailImages, { passive: true });
+    }
+
+    if (projectDetailShell) {
+        projectDetailShell.addEventListener("scroll", maybeLoadMoreProjectDetailImages, { passive: true });
     }
 
     if (drawingsDetailClose) {
