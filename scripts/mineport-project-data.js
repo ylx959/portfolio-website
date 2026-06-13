@@ -51,7 +51,7 @@ const project4Description = [
 const project4FullDescription = "To challenge the repetitive stacking commonly found in residential towers, the housing units are deliberately arranged in a staggered configuration. By shifting units forward and backward on different floors, a variety of intermediate spaces are created, including terraces, semi-outdoor platforms, and shared gardens. These spaces provide opportunities for relaxation, informal gatherings, and everyday social interaction, encouraging a stronger sense of community among residents.\n\nThe greenery extends throughout the vertical grid and into these shared spaces, transforming vegetation from a decorative element into an integral component of daily life. Through the integration of nature, architecture, and social activities, the project seeks to create a vertical living environment that promotes both ecological sustainability and community engagement.\n\nBy combining a vertical grid system with staggered residential units, the project reintroduces greenery, interaction, and shared experiences into high-density housing, creating a sustainable and socially connected vertical community.";
 
 const project8DetailImages = ["1-1.jpg", "1-2.jpg", "1-3.jpg", "1-4.jpg", "1-5.jpg", "1-6.jpg", "1.jpg", "6.jpg", "7.jpg", "8.jpg", "9.jpg", "10.jpg"].map(function (imageName) {
-    return "../assets/images/projects/project8/detail/" + imageName + "?v=2";
+    return "../assets/images/projects/project8/detail/" + imageName + "?v=3";
 });
 
 const project8GalleryImages = ["1-1.jpg", "1-2.jpg", "1-3.jpg", "1-4.jpg", "1-5.jpg", "1-6.jpg", "1-6-2.jpg", "1-7-1.jpg", "1-7-2.jpg", "1-8.jpg", "1-9.jpg", "1-10.jpg", "1-11.jpg", "1-12.jpg", "1-13.jpg", "1-14.jpg", "1-15.jpg", "1-16.jpg", "2-1.jpg", "2-2.jpg", "2-3.jpg", "3-1.jpg", "3-2.jpg", "3-3.jpg", "3-4.jpg", "4-1.jpg", "4-2.jpg", "4-3.jpg", "4-4.jpg", "4-5.jpg", "5-1.jpg", "5-2.jpg", "5-3.jpg", "6-1.jpg", "6-2.jpg", "6-3.jpg", "6-4.jpg", "7-1.jpg", "7-2.jpg", "7-3.jpg", "7-4.jpg", "7-5.jpg", "8-1.jpg", "8-2.jpg", "9-1.jpg"].map(function (imageName) {
@@ -59,7 +59,7 @@ const project8GalleryImages = ["1-1.jpg", "1-2.jpg", "1-3.jpg", "1-4.jpg", "1-5.
 });
 
 const project9DetailImages = ["1.jpg", "2.jpg", "3.jpg", "4.jpg", "5.jpg", "6.jpg", "7.jpg", "8.jpg", "9.jpg", "10.jpg", "11.png", "12.jpg", "13.png", "14.png", "15.jpg", "16.jpg"].map(function (imageName) {
-    return "../assets/images/projects/project9/detail/" + imageName + "?v=4";
+    return "../assets/images/projects/project9/detail/" + imageName + "?v=5";
 });
 
 const project9GalleryImages = ["1-1.jpg", "1-2.jpg", "2-1.jpg", "2-2.jpg", "2-3.jpg", "2-4.jpg", "2-5.jpg", "2-6.jpg", "3-1.jpg", "3-2.jpg", "3-3.jpg", "3-4.jpg", "3-5.jpg", "4-1.jpg", "4-2.jpg", "4-3.jpg", "4-4.jpg", "4-5.jpg", "4-6.jpg", "4-7.jpg", "4-8.jpg", "4-9.jpg", "5-1.jpg", "5-2.jpg", "5-3.jpg", "5-4.jpg", "5-5.jpg", "6-1.jpg", "6-2.jpg", "6-3.jpg", "6-4.jpg", "6-5.jpg", "6-6.jpg", "6-7.jpg", "6-8.jpg", "6-9.jpg", "6-10.jpg", "6-11.jpg", "6-12.jpg", "6-13.jpg", "6-14.jpg", "6-15.png", "6-16.jpg", "6-17.jpg", "7-1.jpg", "7-2.jpg", "7-3.jpg", "7-4.jpg", "7-5.jpg", "7-6.jpg", "7-7.jpg", "7-8.jpg", "8-1.jpg", "8-2.jpg", "8-3.jpg", "8-4.jpg", "8-5.jpg", "8-6-1.jpg", "8-6.jpg", "8-7.png", "9-1.jpg", "9-2.jpg", "9-3.jpg", "9-4.jpg", "9-5.jpg", "9-6.jpg", "9-7.jpg", "9-8.png", "9-9.jpg", "10-1.png", "10-2.jpg", "10-3.jpg", "10-4.jpg", "10-5.jpg"].map(function (imageName) {
