@@ -61,6 +61,9 @@ document.addEventListener("DOMContentLoaded", function () {
     const descriptionRevealDuration = 4200;
     const scrollDuration = 1600;
     const subtitleEnterAnimationDuration = 760;
+    const projectImageBatchSize = 5;
+    const projectImageBatchThreshold = 2;
+    const projectDetailSequentialRevealDelay = 420;
     const HERO_PHASES = {
         IDLE: "idle",
         ENTERING: "entering",
@@ -85,7 +88,12 @@ document.addEventListener("DOMContentLoaded", function () {
     let lastFocusedDrawingCard = null;
     let projectDetailCloseTimer = null;
     let currentProjectDetailIndex = -1;
+    let currentProjectDetailImages = [];
+    let currentProjectDetailRenderedCount = 0;
+    let currentProjectDetailTargetCount = 0;
+    let currentProjectGalleryAllImages = [];
     let currentProjectGalleryImages = [];
+    let currentProjectGalleryRenderedCount = 0;
     let currentProjectGalleryImageIndex = 0;
     let currentProjectGalleryStageIndex = 0;
     let drawingsDetailCloseTimer = null;
@@ -188,6 +196,107 @@ document.addEventListener("DOMContentLoaded", function () {
         }, { once: true });
     }
 
+    function appendNextProjectDetailImage() {
+        if (!projectDetailGallery || currentProjectDetailRenderedCount >= currentProjectDetailTargetCount) {
+            return;
+        }
+
+        if (currentProjectDetailRenderedCount >= currentProjectDetailImages.length) {
+            return;
+        }
+
+        const detail = projectDetails[currentProjectDetailIndex];
+        const imageIndex = currentProjectDetailRenderedCount;
+        const imageSrc = currentProjectDetailImages[imageIndex];
+        const figure = document.createElement("figure");
+        const image = document.createElement("img");
+        let didContinue = false;
+        const continueSequence = function () {
+            if (didContinue) {
+                return;
+            }
+
+            didContinue = true;
+            markProgressiveImageLoaded(image);
+            window.setTimeout(appendNextProjectDetailImage, projectDetailSequentialRevealDelay);
+        };
+
+        figure.className = "project-detail-gallery-item";
+        figure.setAttribute("style", getPreviewImageStyle(imageSrc) + " transition-delay:" + ((imageIndex % projectImageBatchSize) * 28) + "ms");
+        image.className = "project-detail-gallery-image";
+        image.src = imageSrc;
+        image.alt = (detail ? detail.title : "Project") + " image " + (imageIndex + 1);
+        image.loading = imageIndex === 0 ? "eager" : "lazy";
+        image.decoding = "async";
+        image.draggable = false;
+        image.addEventListener("click", blockProjectDetailImageNavigation);
+        image.addEventListener("load", continueSequence, { once: true });
+        image.addEventListener("error", continueSequence, { once: true });
+        figure.appendChild(image);
+        projectDetailGallery.appendChild(figure);
+        currentProjectDetailRenderedCount += 1;
+
+        if (image.complete) {
+            continueSequence();
+        }
+    }
+
+    function requestProjectDetailImages(targetCount) {
+        const nextTargetCount = Math.min(targetCount, currentProjectDetailImages.length);
+
+        if (nextTargetCount <= currentProjectDetailTargetCount) {
+            return;
+        }
+
+        currentProjectDetailTargetCount = nextTargetCount;
+        appendNextProjectDetailImage();
+    }
+
+    function loadMoreProjectDetailImages() {
+        requestProjectDetailImages(currentProjectDetailTargetCount + projectImageBatchSize);
+    }
+
+    function maybeLoadMoreProjectDetailImages() {
+        if (!projectDetailGallery || currentProjectDetailTargetCount >= currentProjectDetailImages.length) {
+            return;
+        }
+
+        const remainingScroll = projectDetailGallery.scrollHeight - projectDetailGallery.scrollTop - projectDetailGallery.clientHeight;
+
+        if (remainingScroll < 900) {
+            loadMoreProjectDetailImages();
+        }
+    }
+
+    function loadMoreProjectGalleryImages(minimumCount) {
+        if (!currentProjectGalleryAllImages.length) {
+            currentProjectGalleryImages = [];
+            currentProjectGalleryRenderedCount = 0;
+            return;
+        }
+
+        const requestedCount = Math.max(minimumCount || 0, currentProjectGalleryRenderedCount + projectImageBatchSize);
+        const nextCount = Math.min(requestedCount, currentProjectGalleryAllImages.length);
+
+        if (nextCount <= currentProjectGalleryRenderedCount) {
+            return;
+        }
+
+        currentProjectGalleryImages = currentProjectGalleryAllImages.slice(0, nextCount);
+        currentProjectGalleryRenderedCount = nextCount;
+        renderProjectGalleryMode();
+    }
+
+    function maybeLoadMoreProjectGalleryImages(targetIndex) {
+        if (currentProjectGalleryRenderedCount >= currentProjectGalleryAllImages.length) {
+            return;
+        }
+
+        if (targetIndex >= currentProjectGalleryRenderedCount - projectImageBatchThreshold) {
+            loadMoreProjectGalleryImages(targetIndex + projectImageBatchThreshold + 1);
+        }
+    }
+
     function setButtonText(button, text, textSelector, textClassName) {
         if (!button) {
             return;
@@ -220,7 +329,12 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function renderProjectGalleryMode() {
-        if (!projectDetailStageTrack || !currentProjectGalleryImages.length) {
+        if (!projectDetailStageTrack) {
+            return;
+        }
+
+        if (!currentProjectGalleryImages.length) {
+            projectDetailStageTrack.innerHTML = "";
             return;
         }
 
@@ -281,6 +395,8 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!currentProjectGalleryImages.length) {
             return;
         }
+
+        maybeLoadMoreProjectGalleryImages(index);
 
         const lastIndex = currentProjectGalleryImages.length - 1;
         currentProjectGalleryStageIndex = index;
@@ -652,12 +768,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
         cancelInertiaScroll();
 
-        const detailImages = detail.images.slice();
-        const galleryImages = (detail.galleryImages || detail.images).slice();
-
         lastFocusedProjectCard = sourceCard || null;
         currentProjectDetailIndex = index;
-        currentProjectGalleryImages = galleryImages;
+        currentProjectDetailImages = detail.images.slice();
+        currentProjectDetailRenderedCount = 0;
+        currentProjectDetailTargetCount = 0;
+        currentProjectGalleryAllImages = (detail.galleryImages || detail.images).slice();
+        currentProjectGalleryImages = [];
+        currentProjectGalleryRenderedCount = 0;
         currentProjectGalleryImageIndex = 0;
         currentProjectGalleryStageIndex = 0;
         projectDetailTitle.textContent = detail.title;
@@ -670,18 +788,11 @@ document.addEventListener("DOMContentLoaded", function () {
         if (projectDetailFullDescription) {
             projectDetailFullDescription.textContent = buildFullDescription(detail);
         }
-        projectDetailGallery.innerHTML = detailImages.map(function (imageSrc, imageIndex) {
-            const itemStyle = getPreviewImageStyle(imageSrc) + " transition-delay:" + (imageIndex * 28) + "ms";
-            const altText = detail.title + " image " + (imageIndex + 1);
-            return '<figure class="project-detail-gallery-item" style="' + escapeAttribute(itemStyle) + '"><img class="project-detail-gallery-image" src="' + escapeAttribute(imageSrc) + '" alt="' + escapeAttribute(altText) + '" loading="eager" decoding="async" draggable="false"></figure>';
-        }).join("");
-        projectDetailGallery.querySelectorAll(".project-detail-gallery-image").forEach(function (image) {
-            setupProgressiveImage(image);
-            image.addEventListener("click", blockProjectDetailImageNavigation);
-        });
+        projectDetailGallery.innerHTML = "";
+        requestProjectDetailImages(projectImageBatchSize);
+        loadMoreProjectGalleryImages(projectImageBatchSize);
         setProjectDetailExpanded(false);
         setProjectGalleryMode(false);
-        renderProjectGalleryMode();
 
         if (projectDetailCloseTimer) {
             window.clearTimeout(projectDetailCloseTimer);
@@ -696,6 +807,7 @@ document.addEventListener("DOMContentLoaded", function () {
             projectDetailShell.scrollTop = 0;
         }
         projectDetailGallery.scrollTop = 0;
+        maybeLoadMoreProjectDetailImages();
 
         window.requestAnimationFrame(function () {
             window.requestAnimationFrame(function () {
@@ -729,7 +841,12 @@ document.addEventListener("DOMContentLoaded", function () {
             projectDetailOverlay.classList.remove("is-visible", "is-closing");
             body.classList.remove("is-project-detail-open");
             currentProjectDetailIndex = -1;
+            currentProjectDetailImages = [];
+            currentProjectDetailRenderedCount = 0;
+            currentProjectDetailTargetCount = 0;
+            currentProjectGalleryAllImages = [];
             currentProjectGalleryImages = [];
+            currentProjectGalleryRenderedCount = 0;
             currentProjectGalleryImageIndex = 0;
             currentProjectGalleryStageIndex = 0;
             setProjectGalleryMode(false);
@@ -835,7 +952,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function preloadProjectDetailImages() {
         const uniqueImages = Array.from(new Set(projectDetails.flatMap(function (detail) {
-            return detail.images.concat(detail.galleryImages || []);
+            return detail.images.slice(0, 1);
         })));
 
         uniqueImages.forEach(function (imageSrc) {
@@ -2015,6 +2132,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 settleProjectGalleryLoop();
             }
         });
+    }
+
+    if (projectDetailGallery) {
+        projectDetailGallery.addEventListener("scroll", maybeLoadMoreProjectDetailImages, { passive: true });
     }
 
     if (drawingsDetailClose) {
