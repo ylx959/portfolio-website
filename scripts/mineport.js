@@ -75,6 +75,10 @@ document.addEventListener("DOMContentLoaded", function () {
         .filter(Boolean);
     let hasEntered = false;
     let activeScrollFrame = null;
+    let inertiaScrollFrame = null;
+    let inertiaScrollTargetY = 0;
+    let inertiaScrollCurrentY = 0;
+    let isInertiaScrollAnimating = false;
     let hasPlayedFirstTypedAnimation = false;
     let isDescriptionRevealComplete = false;
     let lastFocusedProjectCard = null;
@@ -106,6 +110,13 @@ document.addEventListener("DOMContentLoaded", function () {
         isStoryUnlocked: false,
         isAwaitingAutoScroll: false
     };
+    const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const nonDesktopScrollQuery = window.matchMedia("(hover: none), (pointer: coarse), (max-width: 1180px)");
+    const inertiaScrollSettings = {
+        lerp: 0.105,
+        wheelMultiplier: 1.05,
+        settleDistance: 0.45
+    };
     const heroTimers = {
         morph: null,
         unlock: null,
@@ -132,6 +143,49 @@ document.addEventListener("DOMContentLoaded", function () {
         return detail.title + " is developed as a long-form " + detail.category.toLowerCase() + " proposal rooted in atmosphere, spatial sequence, and material restraint. Set in " + detail.location + ", the work begins with a close reading of movement, pause, and the emotional rhythm produced between enclosure and openness. Rather than treating form as a singular object, the project is organized as a series of linked moments, where threshold, proportion, light, and visual compression gradually shape the experience of the whole. The intention is to create a setting that feels measured and quiet, but still carries strong emotional depth through contrast, texture, and pacing. " +
             "Across the proposal, surfaces are edited carefully so that each junction, opening, and transition contributes to a more continuous architectural narrative. Light is not only used to illuminate the space, but also to structure attention, soften boundaries, and clarify the hierarchy between public and intimate zones. Material choices are imagined as part of the same composition, allowing weight, reflection, shadow, and tactile presence to work together instead of competing for emphasis. " +
             "The result is a project that values calm over spectacle and precision over excess. It aims to feel immersive without becoming heavy, and expressive without losing discipline. In this way, " + detail.title + " becomes less a static formal statement and more a carefully paced environment, where each movement reveals another layer of spatial character, visual stillness, and lived atmosphere over time.";
+    }
+
+    function escapeAttribute(value) {
+        return String(value || "")
+            .replace(/&/g, "&amp;")
+            .replace(/"/g, "&quot;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;");
+    }
+
+    function getPreviewImageSrc(imageSrc) {
+        return String(imageSrc || "")
+            .split("?")[0]
+            .replace("../assets/images/", "../assets/images/previews/")
+            .replace(/\.[^/.]+$/, ".jpg") + "?v=2";
+    }
+
+    function getPreviewImageStyle(imageSrc) {
+        const previewSrc = encodeURI(getPreviewImageSrc(imageSrc)).replace(/'/g, "%27");
+        return "--preview-image: url('" + previewSrc + "');";
+    }
+
+    function markProgressiveImageLoaded(image) {
+        const wrapper = image.closest(".project-detail-gallery-item, .project-detail-gallery-stage-slide");
+
+        if (wrapper) {
+            wrapper.classList.add("is-loaded");
+        }
+    }
+
+    function setupProgressiveImage(image) {
+        if (!image) {
+            return;
+        }
+
+        if (image.complete && image.naturalWidth > 0) {
+            markProgressiveImageLoaded(image);
+            return;
+        }
+
+        image.addEventListener("load", function () {
+            markProgressiveImageLoaded(image);
+        }, { once: true });
     }
 
     function setButtonText(button, text, textSelector, textClassName) {
@@ -187,9 +241,10 @@ document.addEventListener("DOMContentLoaded", function () {
                     : imageIndex;
                 const altText = isClone ? "" : (projectDetailTitle ? projectDetailTitle.textContent + " gallery image " + (realImageIndex + 1) : "");
                 const hiddenAttribute = isClone ? ' aria-hidden="true"' : "";
-                return '<div class="project-detail-gallery-stage-slide"' + hiddenAttribute + '><img class="project-detail-gallery-stage-image" src="' + imageSrc + '" alt="' + altText + '" loading="eager" decoding="async" draggable="false"></div>';
+                return '<div class="project-detail-gallery-stage-slide"' + hiddenAttribute + ' style="' + escapeAttribute(getPreviewImageStyle(imageSrc)) + '"><img class="project-detail-gallery-stage-image" src="' + escapeAttribute(imageSrc) + '" alt="' + escapeAttribute(altText) + '" loading="eager" decoding="async" draggable="false"></div>';
             }).join("");
             projectDetailStageTrack.querySelectorAll(".project-detail-gallery-stage-image").forEach(function (image) {
+                setupProgressiveImage(image);
                 image.addEventListener("click", blockProjectDetailImageNavigation);
                 if (image.complete) {
                     applyProjectGalleryStageImageRatio(image);
@@ -595,6 +650,8 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
+        cancelInertiaScroll();
+
         const detailImages = detail.images.slice();
         const galleryImages = (detail.galleryImages || detail.images).slice();
 
@@ -614,9 +671,12 @@ document.addEventListener("DOMContentLoaded", function () {
             projectDetailFullDescription.textContent = buildFullDescription(detail);
         }
         projectDetailGallery.innerHTML = detailImages.map(function (imageSrc, imageIndex) {
-            return '<figure class="project-detail-gallery-item" style="transition-delay:' + (imageIndex * 28) + 'ms"><img class="project-detail-gallery-image" src="' + imageSrc + '" alt="' + detail.title + " image " + (imageIndex + 1) + '" loading="eager" decoding="async" draggable="false"></figure>';
+            const itemStyle = getPreviewImageStyle(imageSrc) + " transition-delay:" + (imageIndex * 28) + "ms";
+            const altText = detail.title + " image " + (imageIndex + 1);
+            return '<figure class="project-detail-gallery-item" style="' + escapeAttribute(itemStyle) + '"><img class="project-detail-gallery-image" src="' + escapeAttribute(imageSrc) + '" alt="' + escapeAttribute(altText) + '" loading="eager" decoding="async" draggable="false"></figure>';
         }).join("");
         projectDetailGallery.querySelectorAll(".project-detail-gallery-image").forEach(function (image) {
+            setupProgressiveImage(image);
             image.addEventListener("click", blockProjectDetailImageNavigation);
         });
         setProjectDetailExpanded(false);
@@ -628,7 +688,7 @@ document.addEventListener("DOMContentLoaded", function () {
             projectDetailCloseTimer = null;
         }
 
-        projectDetailOverlay.classList.remove("is-active");
+        projectDetailOverlay.classList.remove("is-active", "is-closing");
         projectDetailOverlay.classList.add("is-visible");
         projectDetailOverlay.setAttribute("aria-hidden", "false");
         body.classList.add("is-project-detail-open");
@@ -659,10 +719,14 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
+        const lockedPageY = window.scrollY;
+        cancelInertiaScroll();
         projectDetailOverlay.classList.remove("is-active");
+        projectDetailOverlay.classList.add("is-closing");
         projectDetailOverlay.setAttribute("aria-hidden", "true");
         projectDetailCloseTimer = window.setTimeout(function () {
-            projectDetailOverlay.classList.remove("is-visible");
+            window.scrollTo(0, lockedPageY);
+            projectDetailOverlay.classList.remove("is-visible", "is-closing");
             body.classList.remove("is-project-detail-open");
             currentProjectDetailIndex = -1;
             currentProjectGalleryImages = [];
@@ -673,9 +737,12 @@ document.addEventListener("DOMContentLoaded", function () {
             projectDetailCloseTimer = null;
 
             if (lastFocusedProjectCard) {
-                lastFocusedProjectCard.focus();
+                lastFocusedProjectCard.focus({ preventScroll: true });
+                window.scrollTo(0, lockedPageY);
             }
-        }, 320);
+
+            syncInertiaScrollPosition();
+        }, 240);
     }
 
     function openDrawingsDetail(imageSource, imageAlt, sourceCard) {
@@ -792,6 +859,136 @@ document.addEventListener("DOMContentLoaded", function () {
         return 1 + (c3 * Math.pow(clamped - 1, 3)) + (c1 * Math.pow(clamped - 1, 2));
     }
 
+    function getMaxPageScroll() {
+        return Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+    }
+
+    function clampPageScroll(value) {
+        return Math.max(0, Math.min(value, getMaxPageScroll()));
+    }
+
+    function syncInertiaScrollPosition() {
+        inertiaScrollCurrentY = window.scrollY;
+        inertiaScrollTargetY = window.scrollY;
+    }
+
+    function cancelInertiaScroll() {
+        if (inertiaScrollFrame) {
+            window.cancelAnimationFrame(inertiaScrollFrame);
+            inertiaScrollFrame = null;
+        }
+
+        isInertiaScrollAnimating = false;
+        syncInertiaScrollPosition();
+    }
+
+    function isScrollableElement(element) {
+        if (!element || element === document.body || element === document.documentElement) {
+            return false;
+        }
+
+        const styles = window.getComputedStyle(element);
+        const overflowY = styles.overflowY;
+        const canScrollY = overflowY === "auto" || overflowY === "scroll";
+
+        return canScrollY && element.scrollHeight > element.clientHeight + 1;
+    }
+
+    function hasScrollableAncestor(element) {
+        let node = element;
+
+        while (node && node !== document.body && node !== document.documentElement) {
+            if (isScrollableElement(node)) {
+                return true;
+            }
+
+            node = node.parentElement;
+        }
+
+        return false;
+    }
+
+    function shouldUseInertiaScroll(event) {
+        if (!hasEntered || reducedMotionQuery.matches || nonDesktopScrollQuery.matches) {
+            return false;
+        }
+
+        if (event.defaultPrevented || event.ctrlKey || event.metaKey || event.shiftKey) {
+            return false;
+        }
+
+        if (body.classList.contains("is-project-detail-open") || isHeroStoryActive() || isHeroScrollLocked()) {
+            return false;
+        }
+
+        if (event.target && hasScrollableAncestor(event.target)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    function shouldBlockBackgroundScroll(event) {
+        return body.classList.contains("is-project-detail-open") &&
+            !(event.target && hasScrollableAncestor(event.target));
+    }
+
+    function getNormalizedWheelDeltaY(event) {
+        if (event.deltaMode === WheelEvent.DOM_DELTA_LINE) {
+            return event.deltaY * 16;
+        }
+
+        if (event.deltaMode === WheelEvent.DOM_DELTA_PAGE) {
+            return event.deltaY * window.innerHeight;
+        }
+
+        return event.deltaY;
+    }
+
+    function stepInertiaScroll() {
+        const distance = inertiaScrollTargetY - inertiaScrollCurrentY;
+
+        if (Math.abs(distance) <= inertiaScrollSettings.settleDistance) {
+            inertiaScrollCurrentY = inertiaScrollTargetY;
+            window.scrollTo(0, inertiaScrollCurrentY);
+            inertiaScrollFrame = null;
+            isInertiaScrollAnimating = false;
+            return;
+        }
+
+        inertiaScrollCurrentY += distance * inertiaScrollSettings.lerp;
+        window.scrollTo(0, inertiaScrollCurrentY);
+        inertiaScrollFrame = window.requestAnimationFrame(stepInertiaScroll);
+    }
+
+    function handleInertiaWheel(event) {
+        if (!shouldUseInertiaScroll(event)) {
+            return false;
+        }
+
+        if (activeScrollFrame) {
+            window.cancelAnimationFrame(activeScrollFrame);
+            activeScrollFrame = null;
+            heroState.isAwaitingAutoScroll = false;
+            pendingFloatingNavSectionId = "";
+        }
+
+        if (!isInertiaScrollAnimating) {
+            syncInertiaScrollPosition();
+        }
+
+        event.preventDefault();
+        wakeFloatingNav();
+        inertiaScrollTargetY = clampPageScroll(inertiaScrollTargetY + (getNormalizedWheelDeltaY(event) * inertiaScrollSettings.wheelMultiplier));
+
+        if (!inertiaScrollFrame) {
+            isInertiaScrollAnimating = true;
+            inertiaScrollFrame = window.requestAnimationFrame(stepInertiaScroll);
+        }
+
+        return true;
+    }
+
     function isMobileHeroMode() {
         return window.innerWidth <= 768;
     }
@@ -856,8 +1053,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function smoothScrollTo(targetY) {
-        const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
-        const destinationY = Math.max(0, Math.min(targetY, maxScroll));
+        cancelInertiaScroll();
+
+        const destinationY = clampPageScroll(targetY);
         const startY = window.scrollY;
         const distance = destinationY - startY;
         const startTime = performance.now();
@@ -878,6 +1076,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 activeScrollFrame = null;
                 heroState.isAwaitingAutoScroll = false;
                 pendingFloatingNavSectionId = "";
+                syncInertiaScrollPosition();
                 updateFloatingNavState();
             }
         }
@@ -1920,8 +2119,17 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
+        if (shouldBlockBackgroundScroll(event)) {
+            event.preventDefault();
+            return;
+        }
+
         if (scrubHeroStory(event.deltaY)) {
             event.preventDefault();
+            return;
+        }
+
+        if (handleInertiaWheel(event)) {
             return;
         }
 
@@ -1941,6 +2149,11 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
+        if (shouldBlockBackgroundScroll(event)) {
+            event.preventDefault();
+            return;
+        }
+
         if (heroTouchStartY === null || !event.touches.length) {
             return;
         }
@@ -1956,6 +2169,11 @@ document.addEventListener("DOMContentLoaded", function () {
     window.addEventListener("touchend", function () {
         heroTouchStartY = null;
     }, { passive: true });
+    window.addEventListener("keydown", function (event) {
+        if (event.key === "Home" || event.key === "End" || event.key === "PageUp" || event.key === "PageDown" || event.key === "ArrowUp" || event.key === "ArrowDown" || event.key === " ") {
+            cancelInertiaScroll();
+        }
+    }, { passive: true });
     window.addEventListener("scroll", requestSectionStackMotion, { passive: true });
     window.addEventListener("resize", updateSectionReturnVisibility);
     window.addEventListener("resize", function () {
@@ -1968,6 +2186,7 @@ document.addEventListener("DOMContentLoaded", function () {
         updateSectionStackMotion();
         syncFilterPanelOffsets();
         refreshProjectGalleryImageRatios();
+        syncInertiaScrollPosition();
 
         if (projectDetailShell && projectDetailShell.classList.contains("is-gallery-mode")) {
             if (isMobileHeroMode()) {

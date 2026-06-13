@@ -9,24 +9,41 @@
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
-    transition: opacity 0.38s ease, visibility 0.38s ease;
+    transition: visibility 0s linear 0.24s;
 }
 
 .project-detail-overlay.is-visible {
     opacity: 1;
     visibility: visible;
     pointer-events: auto;
+    transition-delay: 0s;
 }
 
 .project-detail-backdrop {
     position: absolute;
     inset: 0;
     background: rgba(18, 17, 16, 0.38);
+    backdrop-filter: blur(0);
+    -webkit-backdrop-filter: blur(0);
     opacity: 0;
-    transition: opacity 0.44s ease;
+    transition: opacity 0.72s ease;
+}
+
+.project-detail-overlay.is-closing {
+    opacity: 1;
+    transition-delay: 0.24s;
+}
+
+.project-detail-overlay.is-closing .project-detail-backdrop {
+    backdrop-filter: blur(0);
+    -webkit-backdrop-filter: blur(0);
+    opacity: 0;
+    transition-duration: 0.22s;
 }
 
 .project-detail-overlay.is-active .project-detail-backdrop {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     opacity: 1;
 }
 
@@ -46,13 +63,21 @@
     opacity: 0;
     transform: translateY(20px);
     will-change: opacity, transform;
-    transition: opacity 0.48s ease, transform 0.58s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.48s ease;
+    transition: opacity 0.66s ease, transform 0.78s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.66s ease;
 }
 
 .project-detail-overlay.is-active .project-detail-shell {
     opacity: 1;
     transform: translateY(0);
     box-shadow: 0 34px 90px rgba(0, 0, 0, 0.24);
+}
+
+.project-detail-overlay.is-closing .project-detail-shell {
+    opacity: 0;
+    transform: translateY(14px);
+    box-shadow: 0 18px 44px rgba(0, 0, 0, 0.14);
+    transition-duration: 0.22s;
+    transition-timing-function: ease;
 }
 
 .project-detail-panel {
@@ -320,7 +345,19 @@
     transform: translateY(0);
 }
 
+.project-detail-overlay.is-closing .project-detail-copy,
+.project-detail-overlay.is-closing .project-detail-gallery,
+.project-detail-overlay.is-closing .project-detail-gallery-item,
+.project-detail-overlay.is-closing .project-detail-gallery-mode {
+    opacity: 0;
+    transform: translateY(8px);
+    transition-delay: 0s;
+    transition-duration: 0.18s;
+    transition-timing-function: ease;
+}
+
 .project-detail-gallery-item {
+    position: relative;
     display: block;
     flex: 0 0 auto;
     width: 100%;
@@ -333,6 +370,39 @@
     opacity: 0;
     transform: translateY(10px);
     transition: opacity 0.38s ease, transform 0.44s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.project-detail-gallery-item::before,
+.project-detail-gallery-stage-slide::before {
+    content: "";
+    position: absolute;
+    inset: -16px;
+    z-index: 0;
+    background-image: var(--preview-image);
+    background-size: cover;
+    background-position: center;
+    filter: blur(18px);
+    opacity: 1;
+    transform: scale(1.08);
+    transition: opacity 0.48s ease;
+}
+
+.project-detail-gallery-item::after,
+.project-detail-gallery-stage-slide::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background: rgba(255, 255, 255, 0.12);
+    pointer-events: none;
+    transition: opacity 0.42s ease;
+}
+
+.project-detail-gallery-item.is-loaded::before,
+.project-detail-gallery-stage-slide.is-loaded::before,
+.project-detail-gallery-item.is-loaded::after,
+.project-detail-gallery-stage-slide.is-loaded::after {
+    opacity: 0;
 }
 
 .project-detail-overlay.is-active .project-detail-gallery-item {
@@ -404,6 +474,7 @@
 }
 
 .project-detail-gallery-stage-slide {
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -413,9 +484,12 @@
     max-width: 100%;
     height: 100%;
     background: #ffffff;
+    overflow: hidden;
 }
 
 .project-detail-gallery-stage-image {
+    position: relative;
+    z-index: 1;
     display: block;
     width: auto;
     max-width: 100%;
@@ -426,6 +500,16 @@
     border-radius: 6px;
     overflow: hidden;
     box-shadow: none;
+    opacity: 0;
+    filter: blur(10px);
+    transform: scale(1.012);
+    transition: opacity 0.42s ease, filter 0.56s ease, transform 0.56s ease;
+}
+
+.project-detail-gallery-stage-slide.is-loaded .project-detail-gallery-stage-image {
+    opacity: 1;
+    filter: blur(0);
+    transform: scale(1);
 }
 
 .project-detail-gallery-nav {
@@ -578,6 +662,8 @@
 }
 
 .project-detail-gallery-image {
+    position: relative;
+    z-index: 1;
     display: block;
     width: 100%;
     height: auto;
@@ -585,6 +671,16 @@
     object-fit: contain;
     background: #ffffff;
     vertical-align: top;
+    opacity: 0;
+    filter: blur(10px);
+    transform: scale(1.012);
+    transition: opacity 0.42s ease, filter 0.56s ease, transform 0.56s ease;
+}
+
+.project-detail-gallery-item.is-loaded .project-detail-gallery-image {
+    opacity: 1;
+    filter: blur(0);
+    transform: scale(1);
 }
 
 body.is-project-detail-open {
