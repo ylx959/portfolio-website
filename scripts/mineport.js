@@ -62,7 +62,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const scrollDuration = 1600;
     const subtitleEnterAnimationDuration = 760;
     const projectImageBatchSize = 5;
-    const projectImageBatchThreshold = 2;
     const projectDetailSequentialRevealDelay = 420;
     const HERO_PHASES = {
         IDLE: "idle",
@@ -91,9 +90,7 @@ document.addEventListener("DOMContentLoaded", function () {
     let currentProjectDetailImages = [];
     let currentProjectDetailRenderedCount = 0;
     let currentProjectDetailTargetCount = 0;
-    let currentProjectGalleryAllImages = [];
     let currentProjectGalleryImages = [];
-    let currentProjectGalleryRenderedCount = 0;
     let currentProjectGalleryImageIndex = 0;
     let currentProjectGalleryStageIndex = 0;
     let drawingsDetailCloseTimer = null;
@@ -268,35 +265,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    function loadMoreProjectGalleryImages(minimumCount) {
-        if (!currentProjectGalleryAllImages.length) {
-            currentProjectGalleryImages = [];
-            currentProjectGalleryRenderedCount = 0;
-            return;
-        }
-
-        const requestedCount = Math.max(minimumCount || 0, currentProjectGalleryRenderedCount + projectImageBatchSize);
-        const nextCount = Math.min(requestedCount, currentProjectGalleryAllImages.length);
-
-        if (nextCount <= currentProjectGalleryRenderedCount) {
-            return;
-        }
-
-        currentProjectGalleryImages = currentProjectGalleryAllImages.slice(0, nextCount);
-        currentProjectGalleryRenderedCount = nextCount;
-        renderProjectGalleryMode();
-    }
-
-    function maybeLoadMoreProjectGalleryImages(targetIndex) {
-        if (currentProjectGalleryRenderedCount >= currentProjectGalleryAllImages.length) {
-            return;
-        }
-
-        if (targetIndex >= currentProjectGalleryRenderedCount - projectImageBatchThreshold) {
-            loadMoreProjectGalleryImages(targetIndex + projectImageBatchThreshold + 1);
-        }
-    }
-
     function setButtonText(button, text, textSelector, textClassName) {
         if (!button) {
             return;
@@ -395,8 +363,6 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!currentProjectGalleryImages.length) {
             return;
         }
-
-        maybeLoadMoreProjectGalleryImages(index);
 
         const lastIndex = currentProjectGalleryImages.length - 1;
         currentProjectGalleryStageIndex = index;
@@ -773,9 +739,7 @@ document.addEventListener("DOMContentLoaded", function () {
         currentProjectDetailImages = detail.images.slice();
         currentProjectDetailRenderedCount = 0;
         currentProjectDetailTargetCount = 0;
-        currentProjectGalleryAllImages = (detail.galleryImages || detail.images).slice();
-        currentProjectGalleryImages = [];
-        currentProjectGalleryRenderedCount = 0;
+        currentProjectGalleryImages = (detail.galleryImages || detail.images).slice();
         currentProjectGalleryImageIndex = 0;
         currentProjectGalleryStageIndex = 0;
         projectDetailTitle.textContent = detail.title;
@@ -790,9 +754,9 @@ document.addEventListener("DOMContentLoaded", function () {
         }
         projectDetailGallery.innerHTML = "";
         requestProjectDetailImages(projectImageBatchSize);
-        loadMoreProjectGalleryImages(projectImageBatchSize);
         setProjectDetailExpanded(false);
         setProjectGalleryMode(false);
+        renderProjectGalleryMode();
 
         if (projectDetailCloseTimer) {
             window.clearTimeout(projectDetailCloseTimer);
@@ -844,9 +808,7 @@ document.addEventListener("DOMContentLoaded", function () {
             currentProjectDetailImages = [];
             currentProjectDetailRenderedCount = 0;
             currentProjectDetailTargetCount = 0;
-            currentProjectGalleryAllImages = [];
             currentProjectGalleryImages = [];
-            currentProjectGalleryRenderedCount = 0;
             currentProjectGalleryImageIndex = 0;
             currentProjectGalleryStageIndex = 0;
             setProjectGalleryMode(false);
