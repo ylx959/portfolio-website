@@ -118,9 +118,9 @@ document.addEventListener("DOMContentLoaded", function () {
     const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
     const nonDesktopScrollQuery = window.matchMedia("(hover: none), (pointer: coarse), (max-width: 1024px)");
     const inertiaScrollSettings = {
-        lerp: 0.082,
-        wheelMultiplier: 1.24,
-        settleDistance: 0.45
+        lerp: 0.064,
+        wheelMultiplier: 1.42,
+        settleDistance: 0.28
     };
     const heroTimers = {
         morph: null,
