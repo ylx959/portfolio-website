@@ -119,7 +119,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const nonDesktopScrollQuery = window.matchMedia("(hover: none), (pointer: coarse), (max-width: 1024px)");
     const inertiaScrollSettings = {
         lerp: 0.052,
-        wheelMultiplier: 1.08,
+        wheelMultiplier: 1.18,
         settleDistance: 0.28
     };
     const heroTimers = {
