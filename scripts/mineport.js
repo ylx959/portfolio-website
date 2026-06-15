@@ -116,10 +116,10 @@ document.addEventListener("DOMContentLoaded", function () {
         isAwaitingAutoScroll: false
     };
     const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const nonDesktopScrollQuery = window.matchMedia("(hover: none), (pointer: coarse), (max-width: 1180px)");
+    const nonDesktopScrollQuery = window.matchMedia("(hover: none), (pointer: coarse), (max-width: 1024px)");
     const inertiaScrollSettings = {
-        lerp: 0.105,
-        wheelMultiplier: 1.05,
+        lerp: 0.082,
+        wheelMultiplier: 1.24,
         settleDistance: 0.45
     };
     const heroTimers = {
