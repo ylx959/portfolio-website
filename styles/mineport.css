@@ -799,11 +799,6 @@ a {
     opacity: 1;
 }
 
-.section-floating-nav.is-collapsed .section-floating-highlight {
-    opacity: 0;
-    transform: translate3d(calc(34px - (var(--nav-highlight-width) / 2)), var(--nav-highlight-y), 0) scale(0.18, 0.82);
-}
-
 .section-floating-links {
     position: relative;
     z-index: 1;
