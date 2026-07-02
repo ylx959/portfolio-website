@@ -145,12 +145,16 @@ a {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: center;
+    object-position: center 76%;
     opacity: 0;
     transition: opacity 1.5s ease;
 }
 
-.hero.is-main-image-ready .hero-main-image {
+.hero.is-main-image-ready .hero-main-image-overlay {
+    opacity: 1;
+}
+
+.hero.is-entered.is-main-image-ready .hero-main-image-visual {
     opacity: 1;
 }
 
@@ -159,15 +163,15 @@ a {
     position: absolute;
     inset: 0;
     background:
-        linear-gradient(180deg, rgba(17, 15, 14, 0.12), rgba(17, 15, 14, 0.3)),
-        radial-gradient(circle at top, rgba(255, 255, 255, 0.2), transparent 48%);
+        linear-gradient(180deg, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0.18)),
+        radial-gradient(circle at top, rgba(255, 255, 255, 0.34), transparent 52%);
     opacity: 0;
     z-index: 1;
     transition: opacity 1.2s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .hero.is-main-image-ready .overlay::after {
-    opacity: 0.6;
+    opacity: 0.72;
 }
 
 .hero-visual {
@@ -183,6 +187,7 @@ a {
     box-shadow:
         inset 0 1px 0 rgba(255, 255, 255, 0.16),
         0 24px 60px rgba(16, 14, 13, 0.18);
+    opacity: 0;
     transform-origin: center center;
     transform: translate(-50%, -50%);
     transition:
@@ -207,7 +212,7 @@ a {
     transition: opacity 1.2s ease;
 }
 
-.hero.is-main-image-ready .hero-visual::before {
+.hero.is-entered.is-main-image-ready .hero-visual::before {
     opacity: 1;
 }
 
@@ -225,7 +230,7 @@ a {
     transition: opacity 0.8s ease;
 }
 
-.hero.is-main-image-ready .hero-visual::after {
+.hero.is-entered.is-main-image-ready .hero-visual::after {
     opacity: 1;
 }
 
@@ -339,6 +344,7 @@ a {
     border-radius: calc(30px + (999px * var(--hero-story-progress)));
     clip-path: inset(0 round calc(30px + (999px * var(--hero-story-progress))));
     transform: translate(-50%, calc(-50% + (var(--hero-comma-shift-y) * var(--hero-story-progress)))) rotate(calc(10deg * var(--hero-story-progress)));
+    opacity: 1;
     box-shadow:
         inset 0 1px 0 rgba(255, 255, 255, 0.16),
         0 38px 110px rgba(18, 15, 13, 0.28);
@@ -810,9 +816,9 @@ a {
 }
 
 .section-floating-nav.is-collapsed .section-floating-links {
-    max-width: 0;
+    max-width: 100%;
     opacity: 0;
-    transform: scaleX(0.68);
+    transform: scaleX(0.18);
     pointer-events: none;
 }
 
@@ -886,12 +892,14 @@ a {
 }
 
 .section-floating-logo {
-    position: relative;
-    z-index: 1;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 2;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 0;
+    width: 44px;
     height: 44px;
     overflow: hidden;
     flex: 0 0 auto;
@@ -900,17 +908,17 @@ a {
         linear-gradient(180deg, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0.18)),
         rgba(255, 255, 255, 0.12);
     opacity: 0;
-    transform: scale(0.82);
+    pointer-events: none;
+    transform: translate(-50%, -50%) scale(0.82);
     transition:
-        width 0.82s cubic-bezier(0.22, 1, 0.36, 1),
         opacity 0.38s ease,
         transform 0.82s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .section-floating-nav.is-collapsed .section-floating-logo {
-    width: 44px;
     opacity: 1;
-    transform: scale(1);
+    pointer-events: auto;
+    transform: translate(-50%, -50%) scale(1);
 }
 
 .section-floating-logo-image {
@@ -1920,7 +1928,7 @@ a {
     width: 100%;
     aspect-ratio: 0.88 / 1;
     transform-style: preserve-3d;
-    transition: transform 0.9s cubic-bezier(0.2, 0.82, 0.18, 1), filter 0.9s ease;
+    transition: transform 1.45s cubic-bezier(0.18, 0.72, 0.18, 1), filter 1.45s ease;
 }
 
 .about-frame-link:hover .about-card-inner,
@@ -2995,11 +3003,12 @@ a {
     }
 
     .section-floating-logo {
+        width: 38px;
         height: 38px;
     }
 
     .section-floating-nav.is-collapsed .section-floating-logo {
-        width: 38px;
+        transform: translate(-50%, -50%) scale(1);
     }
 
     .section-floating-logo-image {
