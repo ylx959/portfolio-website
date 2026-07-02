@@ -509,7 +509,11 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        hero.classList.add("is-main-image-ready");
+        window.requestAnimationFrame(function () {
+            window.requestAnimationFrame(function () {
+                hero.classList.add("is-main-image-ready");
+            });
+        });
     }
 
     function preloadHeroMainImage() {
