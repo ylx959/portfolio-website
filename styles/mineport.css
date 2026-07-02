@@ -545,30 +545,24 @@ a {
     opacity: 0.9;
 }
 
-.subtitle-line {
-    display: inline-flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 0.02em;
-}
-
 .subtitle:hover,
 .subtitle:focus-visible {
     opacity: 1;
 }
 
-.subtitle.is-waving .drawings-title-char {
-    animation: drawings-title-wave 1.02s cubic-bezier(0.2, 0.9, 0.24, 1) both;
-    animation-delay: calc(var(--char-index, 0) * 70ms);
+.subtitle.is-scrambling,
+.description-copy.is-scrambling {
+    font-variant-ligatures: none;
 }
 
 .description-wrapper {
     width: min(720px, 100%);
-    overflow: visible;
+    overflow: hidden;
     margin: 0 auto 30px;
     opacity: 0;
     transform: none;
-    animation: hero-copy-slow-reveal 5.6s linear 2s both;
+    transition: opacity 0.2s ease;
+    transition-delay: 0.32s;
 }
 
 .description-track {
@@ -580,8 +574,7 @@ a {
     line-height: 1.65;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: rgba(255, 255, 255, 0);
-    animation: hero-copy-ink-in 5.6s linear 2s both;
+    color: rgba(255, 255, 255, 0.82);
     transition: color 0.5s ease;
 }
 
@@ -589,6 +582,10 @@ a {
     display: block;
     white-space: normal;
     padding-right: 0;
+}
+
+.content.is-intro-ready .description-wrapper {
+    opacity: 1;
 }
 
 .description-copy[aria-hidden="true"] {
@@ -613,28 +610,6 @@ a {
     100% {
         opacity: 0.82;
         transform: translateY(0) scale(1);
-    }
-}
-
-@keyframes hero-copy-slow-reveal {
-    0% {
-        opacity: 0;
-        transform: none;
-    }
-
-    100% {
-        opacity: 1;
-        transform: none;
-    }
-}
-
-@keyframes hero-copy-ink-in {
-    0% {
-        color: rgba(255, 255, 255, 0);
-    }
-
-    100% {
-        color: rgba(255, 255, 255, 0.82);
     }
 }
 
@@ -1118,6 +1093,108 @@ a {
     background: #171514;
     color: #ffffff;
     box-shadow: 0 10px 20px rgba(23, 21, 20, 0.08);
+}
+
+.cursor-follower {
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 90;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    width: max-content;
+    height: 42px;
+    pointer-events: none;
+    opacity: 0;
+    transform: translate3d(var(--cursor-x, -120px), var(--cursor-y, -120px), 0) translate(-7px, -50%);
+    transition: opacity 0.18s ease;
+    will-change: transform, opacity;
+}
+
+.cursor-follower.is-active {
+    opacity: 1;
+}
+
+.cursor-follower-dot {
+    display: block;
+    width: 14px;
+    height: 14px;
+    border: 0 solid rgba(0, 0, 0, 0.62);
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.48);
+    box-shadow: none;
+    filter: none;
+    transform: scale(1);
+    transition:
+        width 0.22s ease,
+        height 0.22s ease,
+        border-width 0.22s ease,
+        background-color 0.22s ease,
+        box-shadow 0.22s ease,
+        transform 0.22s ease;
+}
+
+.cursor-follower-hint {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 96px;
+    min-height: 38px;
+    padding: 0 18px;
+    border: 1px solid rgba(255, 255, 255, 0.48);
+    border-radius: 999px;
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02)),
+        rgba(0, 0, 0, 0.42);
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0;
+    line-height: 1;
+    text-transform: uppercase;
+    opacity: 0;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.18),
+        inset 0 -1px 0 rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px) saturate(130%);
+    -webkit-backdrop-filter: blur(10px) saturate(130%);
+    text-shadow: none;
+    filter: none;
+    transform: translateX(-8px) scale(0.96);
+    transition:
+        opacity 0.24s ease,
+        transform 0.24s ease;
+}
+
+.cursor-follower.is-idle:not(.is-interactive) .cursor-follower-hint {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+}
+
+.cursor-follower.is-interactive {
+    gap: 0;
+    transform: translate3d(var(--cursor-x, -120px), var(--cursor-y, -120px), 0) translate(-21px, -50%);
+}
+
+.cursor-follower.is-interactive .cursor-follower-dot {
+    width: 42px;
+    height: 42px;
+    border-color: rgba(0, 0, 0, 0.34);
+    border-width: 2px;
+    background: transparent;
+    box-shadow: none;
+}
+
+.cursor-follower.is-interactive .cursor-follower-hint {
+    opacity: 0;
+    transform: translateX(-10px) scale(0.94);
+}
+
+@media (hover: none), (pointer: coarse), (max-width: 768px) {
+    .cursor-follower {
+        display: none;
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {

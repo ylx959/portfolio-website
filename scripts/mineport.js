@@ -50,6 +50,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const sectionFloatingLinks = document.querySelectorAll(".section-floating-link");
     const contactSection = document.getElementById("contact");
     const contactDotField = document.getElementById("contactDotField");
+    const cursorFollower = document.getElementById("cursorFollower");
     const aboutInfoToggles = document.querySelectorAll(".about-info-toggle");
     const sectionNavs = document.querySelectorAll(".section-floating-nav");
     const sectionLinks = document.querySelectorAll('a[href^="#"]');
@@ -559,6 +560,60 @@ document.addEventListener("DOMContentLoaded", function () {
         }).join("");
     }
 
+    const heroScrambleCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    const heroScrambleTimers = new WeakMap();
+
+    function scrambleHeroText(element, text, options) {
+        if (!element || !text) {
+            return;
+        }
+
+        const existingTimer = heroScrambleTimers.get(element);
+
+        if (existingTimer) {
+            window.clearInterval(existingTimer);
+        }
+
+        const duration = options && options.duration ? options.duration : 0.8;
+        const speed = options && options.speed ? options.speed : 0.04;
+        const characters = options && options.characters ? options.characters : heroScrambleCharacters;
+        const steps = Math.max(1, Math.round(duration / speed));
+        let step = 0;
+
+        element.textContent = text;
+        element.classList.add("is-scrambling");
+
+        const timer = window.setInterval(function () {
+            let scrambled = "";
+            const progress = step / steps;
+
+            for (let index = 0; index < text.length; index += 1) {
+                if (text[index] === " ") {
+                    scrambled += " ";
+                    continue;
+                }
+
+                if (progress * text.length > index) {
+                    scrambled += text[index];
+                } else {
+                    scrambled += characters[Math.floor(Math.random() * characters.length)];
+                }
+            }
+
+            element.textContent = scrambled;
+            step += 1;
+
+            if (step > steps) {
+                window.clearInterval(timer);
+                heroScrambleTimers.delete(element);
+                element.textContent = text;
+                element.classList.remove("is-scrambling");
+            }
+        }, speed * 1000);
+
+        heroScrambleTimers.set(element, timer);
+    }
+
     function setupDrawingsTitleAnimation() {
         const drawingsTitle = document.querySelector(".drawings-title");
 
@@ -628,41 +683,49 @@ document.addEventListener("DOMContentLoaded", function () {
         drawingsTitle.addEventListener("focusin", triggerDrawingsTitleWave);
     }
 
-    function setupSubtitleWaveAnimation() {
-        if (!subtitle || subtitle.hasAttribute("data-wave-ready")) {
+    function setupSubtitleScrambleAnimation() {
+        if (!subtitle || subtitle.hasAttribute("data-scramble-ready")) {
             return;
         }
 
         const subtitleText = defaultSubtitleText;
-        subtitle.setAttribute("data-wave-ready", "true");
+        subtitle.setAttribute("data-scramble-ready", "true");
         subtitle.setAttribute("aria-label", subtitleText);
-        subtitle.innerHTML = '<span class="subtitle-line" aria-hidden="true">' + wrapWaveText(subtitleText, 0) + "</span>";
+        subtitle.textContent = subtitleText;
 
-        let isSubtitleWaving = false;
-        const subtitleWaveDuration = 1020 + Math.max(subtitleText.length - 1, 0) * 90;
+    }
 
-        function triggerSubtitleWave() {
-            if (!heroContent || !heroContent.classList.contains("is-intro-ready")) {
+    function setupDescriptionScrambleAnimation() {
+        const descriptionCopies = document.querySelectorAll(".description-copy");
+
+        descriptionCopies.forEach(function (copy) {
+            if (copy.hasAttribute("data-scramble-ready")) {
                 return;
             }
 
-            if (isSubtitleWaving) {
-                return;
-            }
+            const descriptionText = copy.textContent.trim();
+            copy.setAttribute("data-scramble-ready", "true");
+            copy.setAttribute("aria-label", descriptionText);
+            copy.textContent = descriptionText;
+        });
+    }
 
-            isSubtitleWaving = true;
-            subtitle.classList.remove("is-waving");
-            void subtitle.offsetWidth;
-            subtitle.classList.add("is-waving");
+    function triggerHeroTextScramble() {
+        const descriptionCopy = document.querySelector(".description-copy:not([aria-hidden='true'])");
 
-            window.setTimeout(function () {
-                subtitle.classList.remove("is-waving");
-                isSubtitleWaving = false;
-            }, subtitleWaveDuration);
+        if (subtitle) {
+            scrambleHeroText(subtitle, defaultSubtitleText, {
+                duration: 2.2,
+                speed: 0.055
+            });
         }
 
-        subtitle.addEventListener("pointerenter", triggerSubtitleWave);
-        subtitle.addEventListener("focusin", triggerSubtitleWave);
+        if (descriptionCopy) {
+            scrambleHeroText(descriptionCopy, descriptionCopy.getAttribute("aria-label") || descriptionCopy.textContent.trim(), {
+                duration: 2.6,
+                speed: 0.055
+            });
+        }
     }
 
     function updateSubtitle() {
@@ -682,7 +745,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const heroNameText = enteredName === "" ? "Guest" : enteredName;
 
         if (!hasPlayedFirstTypedAnimation) {
-            setupSubtitleWaveAnimation();
+            setupSubtitleScrambleAnimation();
             hasPlayedFirstTypedAnimation = true;
         }
 
@@ -823,6 +886,172 @@ document.addEventListener("DOMContentLoaded", function () {
 
         buildContactDots();
         window.addEventListener("resize", buildContactDots);
+    }
+
+    function setupCursorFollower() {
+        if (!cursorFollower) {
+            return;
+        }
+
+        const finePointerQuery = window.matchMedia("(hover: hover) and (pointer: fine)");
+        const interactiveSelector = [
+            "a[href]",
+            "button:not([disabled])",
+            "input:not([disabled])",
+            "textarea:not([disabled])",
+            "select:not([disabled])",
+            "summary",
+            "[role='button']",
+            "[tabindex]:not([tabindex='-1'])",
+            "[data-detail-close]",
+            "[data-drawings-detail-close]",
+            ".project-card",
+            ".drawings-card",
+            ".about-frame-link"
+        ].join(", ");
+        let idleTimer = null;
+        let cursorFrame = null;
+        let isEnabled = false;
+        const cursorPosition = {
+            x: -120,
+            y: -120,
+            targetX: -120,
+            targetY: -120,
+            hasMoved: false
+        };
+
+        function renderCursorFollower() {
+            cursorFollower.style.setProperty("--cursor-x", cursorPosition.x + "px");
+            cursorFollower.style.setProperty("--cursor-y", cursorPosition.y + "px");
+        }
+
+        function animateCursorFollower() {
+            if (!isEnabled) {
+                cursorFrame = null;
+                return;
+            }
+
+            const ease = cursorFollower.classList.contains("is-interactive") ? 0.085 : 0.06;
+            const deltaX = cursorPosition.targetX - cursorPosition.x;
+            const deltaY = cursorPosition.targetY - cursorPosition.y;
+
+            cursorPosition.x += deltaX * ease;
+            cursorPosition.y += deltaY * ease;
+            renderCursorFollower();
+
+            if (Math.abs(deltaX) > 0.08 || Math.abs(deltaY) > 0.08) {
+                cursorFrame = window.requestAnimationFrame(animateCursorFollower);
+                return;
+            }
+
+            cursorPosition.x = cursorPosition.targetX;
+            cursorPosition.y = cursorPosition.targetY;
+            renderCursorFollower();
+            cursorFrame = null;
+        }
+
+        function requestCursorAnimation() {
+            if (!cursorFrame) {
+                cursorFrame = window.requestAnimationFrame(animateCursorFollower);
+            }
+        }
+
+        function setIdleTimer() {
+            window.clearTimeout(idleTimer);
+
+            if (!hasEntered) {
+                cursorFollower.classList.remove("is-idle");
+                return;
+            }
+
+            idleTimer = window.setTimeout(function () {
+                if (hasEntered) {
+                    cursorFollower.classList.add("is-idle");
+                }
+            }, 2500);
+        }
+
+        function getInteractiveElement(x, y) {
+            const target = document.elementFromPoint(x, y);
+
+            if (!target || target === cursorFollower) {
+                return null;
+            }
+
+            return target.closest(interactiveSelector);
+        }
+
+        function syncInteractiveState(x, y) {
+            const interactiveElement = getInteractiveElement(x, y);
+
+            cursorFollower.classList.toggle("is-interactive", Boolean(interactiveElement));
+        }
+
+        function handlePointerMove(event) {
+            if (!isEnabled || event.pointerType === "touch") {
+                return;
+            }
+
+            cursorPosition.targetX = event.clientX;
+            cursorPosition.targetY = event.clientY;
+
+            if (!cursorPosition.hasMoved) {
+                cursorPosition.x = event.clientX;
+                cursorPosition.y = event.clientY;
+                cursorPosition.hasMoved = true;
+                renderCursorFollower();
+            }
+
+            cursorFollower.classList.add("is-active");
+            cursorFollower.classList.remove("is-idle");
+            syncInteractiveState(event.clientX, event.clientY);
+            requestCursorAnimation();
+            setIdleTimer();
+        }
+
+        function handleCursorScroll() {
+            if (!isEnabled) {
+                return;
+            }
+
+            cursorFollower.classList.remove("is-idle");
+            setIdleTimer();
+        }
+
+        function hideCursorFollower(event) {
+            if (event && event.relatedTarget) {
+                return;
+            }
+
+            cursorFollower.classList.remove("is-active", "is-idle", "is-interactive");
+            window.clearTimeout(idleTimer);
+            if (cursorFrame) {
+                window.cancelAnimationFrame(cursorFrame);
+                cursorFrame = null;
+            }
+            cursorPosition.hasMoved = false;
+        }
+
+        function syncCursorAvailability() {
+            isEnabled = finePointerQuery.matches;
+            body.classList.toggle("has-custom-cursor", isEnabled);
+
+            if (!isEnabled) {
+                hideCursorFollower();
+            }
+        }
+
+        syncCursorAvailability();
+        document.addEventListener("pointermove", handlePointerMove, { passive: true });
+        document.addEventListener("pointerout", hideCursorFollower);
+        window.addEventListener("scroll", handleCursorScroll, { passive: true });
+        window.addEventListener("wheel", handleCursorScroll, { passive: true });
+
+        if (typeof finePointerQuery.addEventListener === "function") {
+            finePointerQuery.addEventListener("change", syncCursorAvailability);
+        } else if (typeof finePointerQuery.addListener === "function") {
+            finePointerQuery.addListener(syncCursorAvailability);
+        }
     }
 
     function resetMobileHeroViewport() {
@@ -1812,11 +2041,13 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     setupDrawingsTitleAnimation();
-    setupSubtitleWaveAnimation();
+    setupSubtitleScrambleAnimation();
+    setupDescriptionScrambleAnimation();
     preloadHeroMainImage();
     updateButtonState();
     updateSubtitle();
     setupContactDotField();
+    setupCursorFollower();
     preloadProjectDetailImages();
     buildDrawingsLoop();
     updateDrawingsCarousel();
@@ -1826,11 +2057,7 @@ document.addEventListener("DOMContentLoaded", function () {
             heroContent.classList.add("is-intro-ready");
         }
 
-        if (subtitle) {
-            subtitle.classList.remove("is-waving");
-            void subtitle.offsetWidth;
-            subtitle.classList.add("is-waving");
-        }
+        triggerHeroTextScramble();
     }, heroIntroDelay);
     window.setTimeout(markDescriptionRevealComplete, descriptionRevealDelay + descriptionRevealDuration + 2000);
 
