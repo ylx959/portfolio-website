@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles/mineport.css?v=190">
+    <link rel="stylesheet" href="styles/mineport.css?v=202">
     <link rel="stylesheet" href="styles/mineport-overlays.css?v=28">
 </head>
 <body>
@@ -58,6 +58,7 @@
     </header>
 
     <nav class="section-floating-nav" id="sectionFloatingNav" aria-label="Section navigation">
+        <span class="section-floating-highlight" id="sectionFloatingHighlight" aria-hidden="true"></span>
         <div class="section-floating-links">
             <a class="nav-link section-floating-link" data-section-link="home" href="#home"><span class="section-floating-link-text">HOME</span></a>
             <a class="nav-link section-floating-link" data-section-link="projects" href="#projects"><span class="section-floating-link-text">PROJECT</span></a>
@@ -382,16 +383,17 @@
 
                 <div class="about-right">
                     <div class="about-frame about-frame-link" id="aboutInstagramCard" role="button" tabindex="0" aria-label="Open Instagram prompt">
-                        <img class="about-image" src="assets/images/about/about1.jpg" alt="YLX Studio visual reference">
-                        <div class="about-instagram-layer" aria-hidden="true">
-                            <div class="about-instagram-card">
-                                <div class="about-instagram-icon">
-                                    <span class="about-instagram-glyph"></span>
-                                </div>
-                                <p class="about-instagram-text" id="aboutInstagramText">Do you want to connect to YLX studio on Instagram?</p>
-                                <div class="about-instagram-actions">
-                                    <a class="about-instagram-link" href="https://www.instagram.com/ylx_studio?utm_source=ig_web_button_share_sheet&amp;igsh=ZDNlZDc0MzIxNw==" target="_blank" rel="noreferrer"><span class="about-instagram-link-text">Open</span></a>
-                                </div>
+                        <div class="about-card-inner">
+                            <div class="about-card-face about-card-front">
+                                <img class="about-image" src="assets/images/about/about1.jpg" alt="YLX Studio visual reference">
+                            </div>
+                            <div class="about-card-face about-card-back">
+                                <span class="about-card-back-label about-card-back-label-top">ABOUT</span>
+                                <span class="about-card-back-spine">YLXPORTFOLIOWORKS</span>
+                                <a class="about-instagram-link" href="https://www.instagram.com/ylx_studio?utm_source=ig_web_button_share_sheet&amp;igsh=ZDNlZDc0MzIxNw==" target="_blank" rel="noreferrer" aria-label="Read more on Instagram">
+                                    <span class="about-instagram-link-text">read more</span>
+                                </a>
+                                <span class="about-card-back-label about-card-back-label-bottom">ABOUT</span>
                             </div>
                         </div>
                     </div>
@@ -400,6 +402,7 @@
         </div>
     </section>
     <section class="contact-section" id="contact">
+        <canvas class="contact-dot-field" id="contactDotField" aria-hidden="true"></canvas>
         <div class="contact-shell">
             <div class="contact-layout">
                 <div class="contact-brand">
@@ -500,6 +503,6 @@
     </div>
 
     <script src="scripts/mineport-project-data.js?v=27"></script>
-    <script src="scripts/mineport.js?v=170"></script>
+    <script src="scripts/mineport.js?v=180"></script>
 </body>
 </html>

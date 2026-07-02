@@ -12,7 +12,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const heroSentenceName = document.getElementById("heroSentenceName");
     const title = document.querySelector(".title");
     const subtitle = document.getElementById("subtitle");
-    const aboutInstagramText = document.getElementById("aboutInstagramText");
     const viewToggle = document.getElementById("viewToggle");
     const timeFilterToggle = document.getElementById("timeFilterToggle");
     const timeFilterPanel = document.getElementById("timeFilterPanel");
@@ -47,7 +46,10 @@ document.addEventListener("DOMContentLoaded", function () {
     const projectDetailNextImage = document.getElementById("projectDetailNextImage");
     const sectionReturn = document.getElementById("sectionReturn");
     const sectionFloatingNav = document.getElementById("sectionFloatingNav");
+    const sectionFloatingHighlight = document.getElementById("sectionFloatingHighlight");
     const sectionFloatingLinks = document.querySelectorAll(".section-floating-link");
+    const contactSection = document.getElementById("contact");
+    const contactDotField = document.getElementById("contactDotField");
     const aboutInfoToggles = document.querySelectorAll(".about-info-toggle");
     const sectionNavs = document.querySelectorAll(".section-floating-nav");
     const sectionLinks = document.querySelectorAll('a[href^="#"]');
@@ -62,7 +64,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const scrollDuration = 1600;
     const subtitleEnterAnimationDuration = 760;
     const projectImageBatchSize = 5;
-    const projectDetailSequentialRevealDelay = 420;
     const HERO_PHASES = {
         IDLE: "idle",
         ENTERING: "entering",
@@ -107,8 +108,19 @@ document.addEventListener("DOMContentLoaded", function () {
     let typologyFilterCloseTimer = null;
     let pendingFloatingNavSectionId = "";
     let floatingNavIdleTimer = null;
+    let floatingNavJellyTimer = null;
     let isPointerOverFloatingNav = false;
     let heroTouchStartY = null;
+    let contactDotFrame = null;
+    let isContactDotVisible = false;
+    let contactDots = [];
+    const contactDotPointer = {
+        x: 0,
+        y: 0,
+        targetX: 0,
+        targetY: 0,
+        isActive: false
+    };
     const heroState = {
         phase: HERO_PHASES.IDLE,
         progress: 0,
@@ -118,8 +130,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
     const nonDesktopScrollQuery = window.matchMedia("(hover: none), (pointer: coarse), (max-width: 1024px)");
     const inertiaScrollSettings = {
-        lerp: 0.052,
-        wheelMultiplier: 1.18,
+        lerp: 0.024,
+        wheelMultiplier: 0.96,
         settleDistance: 0.28
     };
     const heroTimers = {
@@ -193,30 +205,11 @@ document.addEventListener("DOMContentLoaded", function () {
         }, { once: true });
     }
 
-    function appendNextProjectDetailImage() {
-        if (!projectDetailGallery || currentProjectDetailRenderedCount >= currentProjectDetailTargetCount) {
-            return;
-        }
-
-        if (currentProjectDetailRenderedCount >= currentProjectDetailImages.length) {
-            return;
-        }
-
+    function appendProjectDetailImage(imageIndex) {
         const detail = projectDetails[currentProjectDetailIndex];
-        const imageIndex = currentProjectDetailRenderedCount;
         const imageSrc = currentProjectDetailImages[imageIndex];
         const figure = document.createElement("figure");
         const image = document.createElement("img");
-        let didContinue = false;
-        const continueSequence = function () {
-            if (didContinue) {
-                return;
-            }
-
-            didContinue = true;
-            markProgressiveImageLoaded(image);
-            window.setTimeout(appendNextProjectDetailImage, projectDetailSequentialRevealDelay);
-        };
 
         figure.className = "project-detail-gallery-item";
         figure.setAttribute("style", getPreviewImageStyle(imageSrc) + " transition-delay:" + ((imageIndex % projectImageBatchSize) * 28) + "ms");
@@ -227,14 +220,26 @@ document.addEventListener("DOMContentLoaded", function () {
         image.decoding = "async";
         image.draggable = false;
         image.addEventListener("click", blockProjectDetailImageNavigation);
-        image.addEventListener("load", continueSequence, { once: true });
-        image.addEventListener("error", continueSequence, { once: true });
         figure.appendChild(image);
         projectDetailGallery.appendChild(figure);
-        currentProjectDetailRenderedCount += 1;
+        setupProgressiveImage(image);
 
-        if (image.complete) {
-            continueSequence();
+        image.addEventListener("error", function () {
+            markProgressiveImageLoaded(image);
+        }, { once: true });
+    }
+
+    function appendNextProjectDetailImages() {
+        if (!projectDetailGallery) {
+            return;
+        }
+
+        while (
+            currentProjectDetailRenderedCount < currentProjectDetailTargetCount &&
+            currentProjectDetailRenderedCount < currentProjectDetailImages.length
+        ) {
+            appendProjectDetailImage(currentProjectDetailRenderedCount);
+            currentProjectDetailRenderedCount += 1;
         }
     }
 
@@ -246,13 +251,11 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         currentProjectDetailTargetCount = nextTargetCount;
-        appendNextProjectDetailImage();
+        appendNextProjectDetailImages();
     }
 
     function loadMoreProjectDetailImages() {
-        requestProjectDetailImages(isMobileHeroMode()
-            ? currentProjectDetailImages.length
-            : currentProjectDetailTargetCount + projectImageBatchSize);
+        requestProjectDetailImages(currentProjectDetailTargetCount + projectImageBatchSize);
     }
 
     function maybeLoadMoreProjectDetailImages() {
@@ -687,11 +690,135 @@ document.addEventListener("DOMContentLoaded", function () {
             heroSentenceName.textContent = heroNameText;
         }
 
-        if (aboutInstagramText) {
-            aboutInstagramText.textContent = enteredName === ""
-                ? "Would you like to connect with YLX Studio on Instagram?"
-                : enteredName + ", would you like to connect with YLX Studio on Instagram?";
+    }
+
+    function setupContactDotField() {
+        if (!contactSection || !contactDotField) {
+            return;
         }
+
+        const context = contactDotField.getContext("2d");
+
+        if (!context) {
+            return;
+        }
+
+        function buildContactDots() {
+            const rect = contactSection.getBoundingClientRect();
+            const width = Math.max(1, Math.round(rect.width));
+            const height = Math.max(1, Math.round(contactSection.offsetHeight));
+            const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+            const spacing = window.innerWidth <= 768 ? 10 : 8;
+            const offset = spacing / 2;
+
+            contactDotField.width = Math.round(width * pixelRatio);
+            contactDotField.height = Math.round(height * pixelRatio);
+            contactDotField.style.width = width + "px";
+            contactDotField.style.height = height + "px";
+            context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+            contactDots = [];
+
+            for (let y = offset; y < height; y += spacing) {
+                for (let x = offset; x < width; x += spacing) {
+                    contactDots.push({
+                        x: x,
+                        y: y
+                    });
+                }
+            }
+
+            contactDotPointer.x = width * 0.68;
+            contactDotPointer.y = height * 0.46;
+            contactDotPointer.targetX = contactDotPointer.x;
+            contactDotPointer.targetY = contactDotPointer.y;
+            contactDotPointer.isActive = false;
+            drawContactDots();
+        }
+
+        function drawContactDots() {
+            const width = contactDotField.width / Math.min(window.devicePixelRatio || 1, 2);
+            const height = contactDotField.height / Math.min(window.devicePixelRatio || 1, 2);
+            const influenceX = window.innerWidth <= 768 ? 170 : 320;
+            const influenceY = window.innerWidth <= 768 ? 130 : 230;
+            const baseRadius = window.innerWidth <= 768 ? 0.76 : 0.82;
+            const maxRadius = window.innerWidth <= 768 ? 1.0 : 1.45;
+
+            context.clearRect(0, 0, width, height);
+            context.fillStyle = "#111111";
+
+            contactDots.forEach(function (dot) {
+                let radius = baseRadius;
+
+                if (contactDotPointer.isActive) {
+                    const normalizedX = (dot.x - contactDotPointer.x) / influenceX;
+                    const normalizedY = (dot.y - contactDotPointer.y) / influenceY;
+                    const distance = Math.sqrt((normalizedX * normalizedX) + (normalizedY * normalizedY));
+                    const falloff = Math.max(0, 1 - distance);
+                    const easedFalloff = Math.pow(falloff, 1.55);
+                    radius += easedFalloff * maxRadius;
+                }
+
+                context.beginPath();
+                context.arc(dot.x, dot.y, radius, 0, Math.PI * 2);
+                context.fill();
+            });
+        }
+
+        function animateContactDots() {
+            const ease = contactDotPointer.isActive ? 0.16 : 0.055;
+
+            contactDotPointer.x += (contactDotPointer.targetX - contactDotPointer.x) * ease;
+            contactDotPointer.y += (contactDotPointer.targetY - contactDotPointer.y) * ease;
+            drawContactDots();
+
+            if (isContactDotVisible && !reducedMotionQuery.matches) {
+                contactDotFrame = window.requestAnimationFrame(animateContactDots);
+            } else {
+                contactDotFrame = null;
+            }
+        }
+
+        function requestContactDotAnimation() {
+            if (contactDotFrame || reducedMotionQuery.matches) {
+                drawContactDots();
+                return;
+            }
+
+            contactDotFrame = window.requestAnimationFrame(animateContactDots);
+        }
+
+        contactSection.addEventListener("pointermove", function (event) {
+            const rect = contactSection.getBoundingClientRect();
+
+            contactDotPointer.targetX = event.clientX - rect.left;
+            contactDotPointer.targetY = event.clientY - rect.top;
+            contactDotPointer.isActive = true;
+            requestContactDotAnimation();
+        }, { passive: true });
+
+        contactSection.addEventListener("pointerleave", function () {
+            contactDotPointer.isActive = false;
+            drawContactDots();
+        });
+
+        if ("IntersectionObserver" in window) {
+            const contactObserver = new IntersectionObserver(function (entries) {
+                entries.forEach(function (entry) {
+                    isContactDotVisible = entry.isIntersecting;
+
+                    if (isContactDotVisible) {
+                        requestContactDotAnimation();
+                    }
+                });
+            }, { threshold: 0.08 });
+
+            contactObserver.observe(contactSection);
+        } else {
+            isContactDotVisible = true;
+        }
+
+        buildContactDots();
+        window.addEventListener("resize", buildContactDots);
     }
 
     function resetMobileHeroViewport() {
@@ -758,7 +885,7 @@ document.addEventListener("DOMContentLoaded", function () {
             projectDetailFullDescription.textContent = buildFullDescription(detail);
         }
         projectDetailGallery.innerHTML = "";
-        requestProjectDetailImages(isMobileHeroMode() ? currentProjectDetailImages.length : projectImageBatchSize);
+        requestProjectDetailImages(projectImageBatchSize);
         setProjectDetailExpanded(false);
         setProjectGalleryMode(false);
         renderProjectGalleryMode();
@@ -776,7 +903,6 @@ document.addEventListener("DOMContentLoaded", function () {
             projectDetailShell.scrollTop = 0;
         }
         projectDetailGallery.scrollTop = 0;
-        maybeLoadMoreProjectDetailImages();
 
         window.requestAnimationFrame(function () {
             window.requestAnimationFrame(function () {
@@ -1372,6 +1498,74 @@ document.addEventListener("DOMContentLoaded", function () {
         sectionReturn.classList.toggle("is-visible", shouldShow);
     }
 
+    function clearFloatingNavJellyTimer() {
+        if (floatingNavJellyTimer) {
+            window.clearTimeout(floatingNavJellyTimer);
+            floatingNavJellyTimer = null;
+        }
+    }
+
+    function setFloatingNavJellyTarget(targetLink, options) {
+        if (!sectionFloatingNav || !sectionFloatingHighlight || !targetLink) {
+            return;
+        }
+
+        if (sectionFloatingNav.classList.contains("is-collapsed")) {
+            sectionFloatingNav.classList.remove("has-jelly-target", "is-jelly-moving");
+            return;
+        }
+
+        const navRect = sectionFloatingNav.getBoundingClientRect();
+        const linkRect = targetLink.getBoundingClientRect();
+        const isImmediate = !!(options && options.immediate);
+        const highlightX = linkRect.left - navRect.left;
+        const highlightY = linkRect.top - navRect.top;
+        const glowX = ((highlightX + (linkRect.width / 2)) / Math.max(navRect.width, 1)) * 100;
+
+        sectionFloatingNav.style.setProperty("--nav-highlight-x", highlightX + "px");
+        sectionFloatingNav.style.setProperty("--nav-highlight-y", highlightY + "px");
+        sectionFloatingNav.style.setProperty("--nav-highlight-width", linkRect.width + "px");
+        sectionFloatingNav.style.setProperty("--nav-highlight-height", linkRect.height + "px");
+        sectionFloatingNav.style.setProperty("--nav-glow-x", glowX + "%");
+        sectionFloatingNav.style.setProperty("--nav-highlight-scale-x", isImmediate ? "1" : "1.18");
+        sectionFloatingNav.style.setProperty("--nav-highlight-scale-y", isImmediate ? "1" : "0.92");
+        sectionFloatingNav.classList.add("has-jelly-target");
+
+        clearFloatingNavJellyTimer();
+
+        if (isImmediate || reducedMotionQuery.matches) {
+            sectionFloatingNav.classList.remove("is-jelly-moving");
+            sectionFloatingNav.style.setProperty("--nav-highlight-scale-x", "1");
+            sectionFloatingNav.style.setProperty("--nav-highlight-scale-y", "1");
+            return;
+        }
+
+        sectionFloatingNav.classList.add("is-jelly-moving");
+        floatingNavJellyTimer = window.setTimeout(function () {
+            sectionFloatingNav.classList.remove("is-jelly-moving");
+            sectionFloatingNav.style.setProperty("--nav-highlight-scale-x", "1");
+            sectionFloatingNav.style.setProperty("--nav-highlight-scale-y", "1");
+            floatingNavJellyTimer = null;
+        }, 340);
+    }
+
+    function syncFloatingNavJelly(options) {
+        if (!sectionFloatingNav || !sectionFloatingHighlight) {
+            return;
+        }
+
+        const activeLink = Array.from(sectionFloatingLinks).find(function (link) {
+            return link.classList.contains("is-active");
+        });
+
+        if (!activeLink || !sectionFloatingNav.classList.contains("is-visible") || sectionFloatingNav.classList.contains("is-collapsed")) {
+            sectionFloatingNav.classList.remove("has-jelly-target", "is-jelly-moving");
+            return;
+        }
+
+        setFloatingNavJellyTarget(activeLink, options);
+    }
+
     function setFloatingNavCollapsed(isCollapsed) {
         if (!sectionFloatingNav) {
             return;
@@ -1383,6 +1577,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         sectionFloatingNav.classList.toggle("is-collapsed", isCollapsed);
+        syncFloatingNavJelly({ immediate: true });
     }
 
     function shouldWakeFloatingNavOnScroll() {
@@ -1453,6 +1648,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 link.removeAttribute("aria-current");
             }
         });
+
+        syncFloatingNavJelly({ immediate: true });
     }
 
     function updateSectionStackMotion() {
@@ -1597,6 +1794,7 @@ document.addEventListener("DOMContentLoaded", function () {
     preloadHeroMainImage();
     updateButtonState();
     updateSubtitle();
+    setupContactDotField();
     preloadProjectDetailImages();
     buildDrawingsLoop();
     updateDrawingsCarousel();
@@ -2180,21 +2378,33 @@ document.addEventListener("DOMContentLoaded", function () {
         sectionFloatingNav.addEventListener("pointerenter", function () {
             isPointerOverFloatingNav = true;
             wakeFloatingNav();
+            syncFloatingNavJelly();
         });
         sectionFloatingNav.addEventListener("pointermove", wakeFloatingNav);
         sectionFloatingNav.addEventListener("focusin", wakeFloatingNav);
         sectionFloatingNav.addEventListener("pointerleave", function () {
             isPointerOverFloatingNav = false;
+            syncFloatingNavJelly();
             scheduleFloatingNavCollapse();
         });
         sectionFloatingNav.addEventListener("focusout", function () {
             window.setTimeout(function () {
                 if (sectionFloatingNav && !sectionFloatingNav.contains(document.activeElement)) {
+                    syncFloatingNavJelly();
                     scheduleFloatingNavCollapse();
                 }
             }, 0);
         });
     }
+
+    sectionFloatingLinks.forEach(function (link) {
+        link.addEventListener("pointerenter", function () {
+            setFloatingNavJellyTarget(link);
+        });
+        link.addEventListener("focus", function () {
+            setFloatingNavJellyTarget(link);
+        });
+    });
 
     window.addEventListener("scroll", updateSectionReturnVisibility, { passive: true });
     window.addEventListener("scroll", function () {
@@ -2270,6 +2480,7 @@ document.addEventListener("DOMContentLoaded", function () {
     window.addEventListener("resize", updateSectionReturnVisibility);
     window.addEventListener("resize", function () {
         updateFloatingNavState();
+        syncFloatingNavJelly({ immediate: true });
     });
     window.addEventListener("resize", function () {
         buildDrawingsLoop();
