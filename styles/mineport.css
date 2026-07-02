@@ -154,7 +154,7 @@ a {
     opacity: 0.82;
 }
 
-.hero.is-entered.is-main-image-ready .hero-main-image-visual {
+.hero.is-main-image-ready .hero-main-image-visual {
     opacity: 1;
 }
 
@@ -797,6 +797,12 @@ a {
 
 .section-floating-nav.has-jelly-target .section-floating-highlight {
     opacity: 1;
+}
+
+.section-floating-nav.is-collapsed .section-floating-highlight {
+    opacity: 0;
+    transform: translate3d(0, 0, 0) scale(0.18, 0.82);
+    transition: opacity 0.16s ease;
 }
 
 .section-floating-links {

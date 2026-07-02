@@ -1570,6 +1570,17 @@ document.addEventListener("DOMContentLoaded", function () {
         setFloatingNavJellyTarget(activeLink, options);
     }
 
+    function clearFloatingNavJellyState() {
+        if (!sectionFloatingNav) {
+            return;
+        }
+
+        clearFloatingNavJellyTimer();
+        sectionFloatingNav.classList.remove("has-jelly-target", "is-jelly-moving");
+        sectionFloatingNav.style.setProperty("--nav-highlight-scale-x", "1");
+        sectionFloatingNav.style.setProperty("--nav-highlight-scale-y", "1");
+    }
+
     function setFloatingNavCollapsed(isCollapsed) {
         if (!sectionFloatingNav) {
             return;
@@ -1580,8 +1591,15 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
+        if (isCollapsed) {
+            clearFloatingNavJellyState();
+        }
+
         sectionFloatingNav.classList.toggle("is-collapsed", isCollapsed);
-        syncFloatingNavJelly({ immediate: true });
+
+        if (!isCollapsed) {
+            syncFloatingNavJelly({ immediate: true });
+        }
     }
 
     function shouldWakeFloatingNavOnScroll() {
@@ -2388,13 +2406,13 @@ document.addEventListener("DOMContentLoaded", function () {
         sectionFloatingNav.addEventListener("focusin", wakeFloatingNav);
         sectionFloatingNav.addEventListener("pointerleave", function () {
             isPointerOverFloatingNav = false;
-            syncFloatingNavJelly();
+            clearFloatingNavJellyState();
             scheduleFloatingNavCollapse();
         });
         sectionFloatingNav.addEventListener("focusout", function () {
             window.setTimeout(function () {
                 if (sectionFloatingNav && !sectionFloatingNav.contains(document.activeElement)) {
-                    syncFloatingNavJelly();
+                    clearFloatingNavJellyState();
                     scheduleFloatingNavCollapse();
                 }
             }, 0);
