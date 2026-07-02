@@ -151,7 +151,7 @@ a {
 }
 
 .hero.is-main-image-ready .hero-main-image-overlay {
-    opacity: 1;
+    opacity: 0.82;
 }
 
 .hero.is-entered.is-main-image-ready .hero-main-image-visual {
@@ -171,7 +171,7 @@ a {
 }
 
 .hero.is-main-image-ready .overlay::after {
-    opacity: 0.72;
+    opacity: 0;
 }
 
 .hero-visual {
@@ -797,6 +797,11 @@ a {
 
 .section-floating-nav.has-jelly-target .section-floating-highlight {
     opacity: 1;
+}
+
+.section-floating-nav.is-collapsed .section-floating-highlight {
+    opacity: 0;
+    transform: translate3d(calc(34px - (var(--nav-highlight-width) / 2)), var(--nav-highlight-y), 0) scale(0.18, 0.82);
 }
 
 .section-floating-links {
