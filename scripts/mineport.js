@@ -131,9 +131,9 @@ document.addEventListener("DOMContentLoaded", function () {
     const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
     const nonDesktopScrollQuery = window.matchMedia("(hover: none), (pointer: coarse), (max-width: 1024px)");
     const inertiaScrollSettings = {
-        lerp: 0.024,
-        wheelMultiplier: 0.96,
-        settleDistance: 0.28
+        lerp: 0.018,
+        wheelMultiplier: 1.12,
+        settleDistance: 0.2
     };
     const heroTimers = {
         morph: null,
@@ -956,19 +956,14 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         }
 
+        function isCursorHintAllowed() {
+            const currentSection = getCurrentSection();
+            return hasEntered && currentSection && currentSection.id === "home";
+        }
+
         function setIdleTimer() {
             window.clearTimeout(idleTimer);
-
-            if (!hasEntered) {
-                cursorFollower.classList.remove("is-idle");
-                return;
-            }
-
-            idleTimer = window.setTimeout(function () {
-                if (hasEntered) {
-                    cursorFollower.classList.add("is-idle");
-                }
-            }, 2500);
+            cursorFollower.classList.toggle("is-idle", isCursorHintAllowed());
         }
 
         function getInteractiveElement(x, y) {
@@ -1003,7 +998,6 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
             cursorFollower.classList.add("is-active");
-            cursorFollower.classList.remove("is-idle");
             syncInteractiveState(event.clientX, event.clientY);
             requestCursorAnimation();
             setIdleTimer();
@@ -1014,7 +1008,14 @@ document.addEventListener("DOMContentLoaded", function () {
                 return;
             }
 
-            cursorFollower.classList.remove("is-idle");
+            setIdleTimer();
+        }
+
+        function handleEnteredStateChange() {
+            if (!isEnabled || !cursorPosition.hasMoved) {
+                return;
+            }
+
             setIdleTimer();
         }
 
@@ -1044,6 +1045,7 @@ document.addEventListener("DOMContentLoaded", function () {
         syncCursorAvailability();
         document.addEventListener("pointermove", handlePointerMove, { passive: true });
         document.addEventListener("pointerout", hideCursorFollower);
+        document.addEventListener("portfolio:entered", handleEnteredStateChange);
         window.addEventListener("scroll", handleCursorScroll, { passive: true });
         window.addEventListener("wheel", handleCursorScroll, { passive: true });
 
@@ -1965,6 +1967,7 @@ document.addEventListener("DOMContentLoaded", function () {
         body.classList.remove("is-locked");
         resetHeroFlowState();
         updateFloatingNavState();
+        document.dispatchEvent(new CustomEvent("portfolio:entered"));
     }
 
     function lockEnterForm(name) {
