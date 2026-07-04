@@ -1099,7 +1099,8 @@ a {
     position: fixed;
     left: 0;
     top: 0;
-    z-index: 90;
+    z-index: 2147483647;
+    isolation: isolate;
     display: block;
     width: 24px;
     height: 24px;
@@ -1118,9 +1119,11 @@ a {
 }
 
 .cursor-follower-dot {
+    position: relative;
     display: block;
     width: 100%;
     height: 100%;
+    overflow: hidden;
     border: 1px solid rgba(224, 224, 224, 0.72);
     border-radius: 50%;
     background:
@@ -1139,6 +1142,32 @@ a {
         border-radius 0.22s ease,
         background-color 0.22s ease,
         box-shadow 0.22s ease;
+}
+
+.cursor-follower-dot::before,
+.cursor-follower-dot::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+
+.cursor-follower-dot::before {
+    background-image: var(--cursor-magnifier-image);
+    background-repeat: no-repeat;
+    background-size: var(--cursor-magnifier-size, auto);
+    background-position: var(--cursor-magnifier-position, center);
+    filter: saturate(108%) contrast(104%);
+}
+
+.cursor-follower-dot::after {
+    background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.12), transparent 34%),
+        radial-gradient(circle at 50% 50%, transparent 64%, rgba(210, 210, 210, 0.12) 84%, transparent 88%);
+    mix-blend-mode: screen;
 }
 
 .cursor-follower-hint {
@@ -1190,10 +1219,26 @@ a {
 }
 
 .cursor-follower.is-interactive .cursor-follower-dot {
-    border-color: rgba(188, 188, 188, 0.72);
+    border-color: rgba(168, 168, 168, 0.58);
     border-radius: 50%;
-    background: transparent;
-    box-shadow: none;
+    background:
+        radial-gradient(circle at 34% 28%, rgba(255, 255, 255, 0.12) 0%, rgba(230, 230, 230, 0.05) 30%, transparent 58%),
+        radial-gradient(circle at 68% 72%, rgba(160, 160, 160, 0.06), transparent 52%),
+        rgba(255, 255, 255, 0.008);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.22),
+        inset 0 -8px 14px rgba(168, 168, 168, 0.035),
+        0 2px 8px rgba(0, 0, 0, 0.04);
+    backdrop-filter: saturate(122%) contrast(106%);
+    -webkit-backdrop-filter: saturate(122%) contrast(106%);
+}
+
+.cursor-follower.is-interactive .cursor-follower-dot::after {
+    opacity: 1;
+}
+
+.cursor-follower.is-interactive.is-image-magnifying .cursor-follower-dot::before {
+    opacity: 1;
 }
 
 .cursor-follower.is-interactive .cursor-follower-hint {
